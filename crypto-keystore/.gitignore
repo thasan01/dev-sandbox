@@ -1,7 +1,1 @@
 src/main/resources/app.secret.properties
-target/**
-
-#Eclipse project files
-.classpath
-.project
-.settings/**

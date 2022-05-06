@@ -13,7 +13,11 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.Configurator;
+import com.beust.jcommander.JCommander;
 import com.codingronin.sandbox.crypto.PasswordBasedFileEncrypter;
+import com.codingronin.sandbox.crypto.app.EncrypterAppArgs.Command;
+import com.codingronin.sandbox.crypto.app.EncrypterAppArgs.DecryptFileCommand;
+import com.codingronin.sandbox.crypto.app.EncrypterAppArgs.EncryptFileCommand;
 
 public class EncrypterApp {
 
@@ -24,7 +28,6 @@ public class EncrypterApp {
   Logger console = LogManager.getLogger(EncrypterApp.class);
 
   public static void main(String[] args) throws IOException, GeneralSecurityException {
-
 
     EncrypterApp app = new EncrypterApp();
     ActionSet actionSet = app.processArgs(args);
@@ -71,10 +74,26 @@ public class EncrypterApp {
 
     ActionSet result = new ActionSet();
     try {
-      if (args.length <= 0)
-        throw new InvalidAttributesException("Invalid input.");
+      EncryptFileCommand encryptFileCmd = new EncryptFileCommand();
+      DecryptFileCommand decryptFileCmd = new DecryptFileCommand();
 
-      String actionValue = args[0];
+      EncrypterAppArgs appArgs = new EncrypterAppArgs();
+      JCommander jcmd = JCommander.newBuilder()//
+          .addObject(appArgs)//
+          .addCommand(encryptFileCmd)//
+          .addCommand(decryptFileCmd)//
+          .build();
+
+      jcmd.parse(args);
+
+      String logLevel = appArgs.getLogLevel();
+
+      if (logLevel != null) {
+        Configurator.setLevel(console.getName(), Level.valueOf(logLevel));
+        console.debug("Setting logging level: {}", logLevel);
+      }
+
+      String actionValue = jcmd.getParsedCommand();
       Action action = Action.getKey(actionValue)
           .orElseThrow(() -> new InvalidAttributesException("Invalid action:" + actionValue));
 
@@ -83,11 +102,11 @@ public class EncrypterApp {
       switch (action) {
 
         case ENCRYPT_FILE:
-          processEncryptFileCommand(args, result);
+          processEncryptFileCommand(encryptFileCmd, result);
           break;
 
         case DECRYPT_FILE:
-          processDecryptFileCommand(args, result);
+          processDecryptFileCommand(decryptFileCmd, result);
           break;
 
         default:
@@ -101,26 +120,19 @@ public class EncrypterApp {
     return result;
   }
 
-  void processEncryptFileCommand(String[] args, ActionSet result) {
-
-    if (args.length < 3)
-      throw new IllegalArgumentException("Invalid number of arguments for " + result.getAction());
+  void processEncryptFileCommand(Command command, ActionSet result) {
 
     ActionPerformer performer = ActionPerformerFactory.create(Action.ENCRYPT_FILE);
-
-    result.setEncryptFile(args[2]);
-    result.setDecryptFile(args[1]);
+    result.setEncryptFile(command.getDestination());
+    result.setDecryptFile(command.getSource());
     result.setPerformer(performer);
   }
 
-  void processDecryptFileCommand(String[] args, ActionSet result) {
-
-    if (args.length < 3)
-      throw new IllegalArgumentException("Invalid number of arguments for " + result.getAction());
+  void processDecryptFileCommand(Command command, ActionSet result) {
 
     ActionPerformer performer = ActionPerformerFactory.create(Action.DECRYPT_FILE);
-    result.setEncryptFile(args[1]);
-    result.setDecryptFile(args[2]);
+    result.setEncryptFile(command.getSource());
+    result.setDecryptFile(command.getDestination());
     result.setPerformer(performer);
   }
 

@@ -1,0 +1,4 @@
+target/
+tokens/**
+**/credentials.json
+**/app.secret.properties

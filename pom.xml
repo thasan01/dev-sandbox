@@ -11,6 +11,7 @@
 
     <modules>
         <module>crypto-keystore</module>
+        <module>google-drive-api</module>
     </modules>
 
     <dependencyManagement>
