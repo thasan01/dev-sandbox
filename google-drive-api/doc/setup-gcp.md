@@ -1,10 +1,10 @@
-#Google Cloud Platform Project Setup
+# Google Cloud Platform Project Setup
 
-##Create New GCP Project
+## Create New GCP Project
 ![Create GCP Project](screenshots/setup-gcp-001.png)
   
   
-##Enable Drive API
+## Enable Drive API
 ![Enable API](screenshots/setup-gcp-002.png)
   
 ![Enable API](screenshots/setup-gcp-003.png)
@@ -12,7 +12,7 @@
 ![Enable API](screenshots/setup-gcp-004.png)
   
   
-##Configure OAuth consent screen
+## Configure OAuth consent screen
 ![Configure](screenshots/setup-gcp-005.png)
   
 ![Configure](screenshots/setup-gcp-006.png)
@@ -28,12 +28,12 @@ In **Test Users** screen, click **Save and Continue**.
 In the **Summary** screen, click **Back to Dashboard**.  
   
 
-##Publish the Application  
+## Publish the Application  
 In the **OAuth Consent Screen**, click **Publish**.
   
 ![Configure](screenshots/setup-gcp-008.png)  
 
-##Create Credentials for the Application
+## Create Credentials for the Application
 From the **Credentials** page, click **Create Credentials**.  
   
 Then select **OAuth client ID**.  
