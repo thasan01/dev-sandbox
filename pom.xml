@@ -12,6 +12,7 @@
     <modules>
         <module>crypto-keystore</module>
         <module>google-drive-api</module>
+		<module>spring-webapp</module>
     </modules>
 
     <dependencyManagement>
