@@ -1,0 +1,66 @@
+{
+	"info": {
+		"_postman_id": "ab44681f-32dd-4759-a215-e4495d87e2b3",
+		"name": "SimpleWebApp",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "api",
+			"item": [
+				{
+					"name": "v1",
+					"item": [
+						{
+							"name": "Get Users",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{API_BASE_URL}}/rest/v1/Users",
+									"host": [
+										"{{API_BASE_URL}}"
+									],
+									"path": [
+										"rest",
+										"v1",
+										"Users"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create Users",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"users\" : [\r\n        {\r\n            \"userName\" : \"john.doe\",\r\n            \"email\" : \"john.doe@test.com\"\r\n        }\r\n    ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{API_BASE_URL}}/rest/v1/Users",
+									"host": [
+										"{{API_BASE_URL}}"
+									],
+									"path": [
+										"rest",
+										"v1",
+										"Users"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		}
+	]
+}

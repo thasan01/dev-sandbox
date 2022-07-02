@@ -14,7 +14,7 @@ import com.codingronin.spring.webapp.api.model.http.v1.CreateUserResponse;
 import com.codingronin.spring.webapp.api.model.http.v1.GetUsersResponse;
 
 @RestController("ApiControllerV1")
-@RequestMapping("/api/v1/Users")
+@RequestMapping("/api/rest/v1/Users")
 @Validated
 public class UsersApiController implements RestApiController {
 
