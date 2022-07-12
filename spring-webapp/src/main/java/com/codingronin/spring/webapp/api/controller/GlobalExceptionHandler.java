@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
@@ -41,5 +42,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     return ResponseEntity.badRequest().body(resp);
   }
 
+
+  @Override
+  protected ResponseEntity<Object> handleMissingServletRequestParameter(
+      MissingServletRequestParameterException ex, HttpHeaders headers, HttpStatus status,
+      WebRequest request) {
+    BadInputResponse resp = new BadInputResponse();
+    resp.setResponseId(headers.getFirst(CLIENT_RESPONSE_ID_KEY));
+    resp.setStatusMessage("Request is missing required parameter " + ex.getParameterName());
+    return ResponseEntity.badRequest().body(resp);
+  }
 
 }
