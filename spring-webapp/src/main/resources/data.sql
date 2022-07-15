@@ -1,0 +1,10 @@
+INSERT INTO app_user (user_name, email) VALUES ('user1', 'user1@doamin.com');
+INSERT INTO app_user (user_name, email) VALUES ('user2', 'user2@doamin.com');
+INSERT INTO app_user (user_name, email) VALUES ('user3', 'user3@doamin.com');
+INSERT INTO app_user (user_name, email) VALUES ('user4', 'user4@doamin.com');
+INSERT INTO app_user (user_name, email) VALUES ('user5', 'user5@doamin.com');
+INSERT INTO app_user (user_name, email) VALUES ('user6', 'user6@doamin.com');
+INSERT INTO app_user (user_name, email) VALUES ('user7', 'user7@doamin.com');
+INSERT INTO app_user (user_name, email) VALUES ('user8', 'user8@doamin.com');
+INSERT INTO app_user (user_name, email) VALUES ('user9', 'user9@doamin.com');
+INSERT INTO app_user (user_name, email) VALUES ('user10', 'user10@doamin.com');

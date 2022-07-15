@@ -16,7 +16,7 @@ import com.google.gson.Gson;
 
 @ControllerAdvice
 
-public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
+public class ApiExceptionHandler extends ResponseEntityExceptionHandler {
   @Autowired
   Gson gson;
 
