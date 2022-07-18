@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.codingronin.spring.webapp.api.controller.RestApiController;
 import com.codingronin.spring.webapp.api.model.http.v1.CreateUserRequest;
 import com.codingronin.spring.webapp.api.model.http.v1.CreateUserResponse;
+import com.codingronin.spring.webapp.api.model.http.v1.DeleteUserRequest;
+import com.codingronin.spring.webapp.api.model.http.v1.DeleteUserResponse;
 import com.codingronin.spring.webapp.api.model.http.v1.GetUsersResponse;
 import com.codingronin.spring.webapp.api.model.v1.User;
 import com.codingronin.spring.webapp.api.service.UserService;
@@ -56,6 +59,14 @@ public class UsersApiController implements RestApiController {
 
     CreateUserResponse resp = new CreateUserResponse();
     resp.setUsers(userService.createUsers(users));
+    return ResponseEntity.ok(resp);
+  }
+
+  @DeleteMapping
+  public ResponseEntity<DeleteUserResponse> create(@Valid @RequestBody DeleteUserRequest payload) {
+    userService.deleteUsers(payload.getUserNames());
+    DeleteUserResponse resp = new DeleteUserResponse();
+    resp.setUserNames(payload.getUserNames());
     return ResponseEntity.ok(resp);
   }
 

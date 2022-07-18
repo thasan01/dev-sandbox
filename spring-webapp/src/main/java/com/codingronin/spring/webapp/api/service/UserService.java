@@ -9,5 +9,6 @@ public interface UserService {
 
   public List<User> createUsers(List<User> users);
 
+  public void deleteUsers(List<String> userNames);
 
 }
