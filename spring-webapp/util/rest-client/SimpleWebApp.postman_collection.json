@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "ab44681f-32dd-4759-a215-e4495d87e2b3",
+		"_postman_id": "b9290d0d-8fd0-4c96-81b4-b6a41e6b48a8",
 		"name": "SimpleWebApp",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -17,6 +17,44 @@
 								"method": "GET",
 								"header": [],
 								"url": {
+									"raw": "{{API_BASE_URL}}/rest/v1/Users?page=0&size=50",
+									"host": [
+										"{{API_BASE_URL}}"
+									],
+									"path": [
+										"rest",
+										"v1",
+										"Users"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "0"
+										},
+										{
+											"key": "size",
+											"value": "50"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create Users",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"users\" : [\r\n        {\r\n            \"userName\" : \"john.doe\",\r\n            \"email\" : \"john.doe@test.com\"\r\n        }\r\n    ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
 									"raw": "{{API_BASE_URL}}/rest/v1/Users",
 									"host": [
 										"{{API_BASE_URL}}"
@@ -31,13 +69,13 @@
 							"response": []
 						},
 						{
-							"name": "Create Users",
+							"name": "Delete Users",
 							"request": {
-								"method": "POST",
+								"method": "DELETE",
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"users\" : [\r\n        {\r\n            \"userName\" : \"john.doe\",\r\n            \"email\" : \"john.doe@test.com\"\r\n        }\r\n    ]\r\n}",
+									"raw": "{\r\n    \"userNames\": [\r\n        \"user10\",\r\n        \"user9\"\r\n    ]\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
