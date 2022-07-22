@@ -107,6 +107,12 @@
 	    <scope>runtime</scope>
 	</dependency>
 	
+	<!--Required to render JSPs-->
+	<dependency>
+	  <groupId>org.apache.tomcat.embed</groupId>
+	  <artifactId>tomcat-embed-jasper</artifactId>
+	</dependency>  
+	
   </dependencies>
   
 	<build>
