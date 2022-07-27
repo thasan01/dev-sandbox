@@ -1,4 +1,4 @@
-package com.codingronin.spring.webapp.api.controller;
+package com.codingronin.spring.webapp.api.controller_advice;
 
 import org.jboss.logging.Logger;
 import org.springframework.dao.DataAccessException;
@@ -20,5 +20,4 @@ public class DbExceptionHandler {
     resp.setStatusMessage("Encountered database error.");
     return new ResponseEntity<>(resp, HttpStatus.BAD_REQUEST);
   }
-
 }

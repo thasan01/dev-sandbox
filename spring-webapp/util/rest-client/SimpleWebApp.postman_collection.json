@@ -95,6 +95,34 @@
 								}
 							},
 							"response": []
+						},
+						{
+							"name": "Update Users Attributes",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"users\": {\r\n        \"user1\": {\r\n            \"email\": \"new.value@test.com\"\r\n        }\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{API_BASE_URL}}/rest/v1/Users",
+									"host": [
+										"{{API_BASE_URL}}"
+									],
+									"path": [
+										"rest",
+										"v1",
+										"Users"
+									]
+								}
+							},
+							"response": []
 						}
 					]
 				}

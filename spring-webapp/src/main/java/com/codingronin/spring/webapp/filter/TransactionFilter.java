@@ -30,6 +30,9 @@ public class TransactionFilter extends OncePerRequestFilter {
     String requestId = request.getHeader(CLIENT_REQUEST_ID_KEY);
     String responseId = UUID.randomUUID().toString();
 
+    request.setAttribute(CLIENT_REQUEST_ID_KEY, requestId);
+    request.setAttribute(CLIENT_RESPONSE_ID_KEY, responseId);
+
     response.addHeader(CLIENT_REQUEST_ID_KEY, requestId);
     response.addHeader(CLIENT_RESPONSE_ID_KEY, responseId);
     String requestUri = request.getRequestURI();

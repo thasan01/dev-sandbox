@@ -1,6 +1,7 @@
 package com.codingronin.spring.webapp.api.controller.v1;
 
 import static com.codingronin.spring.webapp.api.util.CollectionsUtil.nullSafe;
+import static com.codingronin.spring.webapp.filter.TransactionFilter.CLIENT_RESPONSE_ID_KEY;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
@@ -11,7 +12,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,6 +25,8 @@ import com.codingronin.spring.webapp.api.model.http.v1.CreateUserResponse;
 import com.codingronin.spring.webapp.api.model.http.v1.DeleteUserRequest;
 import com.codingronin.spring.webapp.api.model.http.v1.DeleteUserResponse;
 import com.codingronin.spring.webapp.api.model.http.v1.GetUsersResponse;
+import com.codingronin.spring.webapp.api.model.http.v1.UpdateUserAttributesRequest;
+import com.codingronin.spring.webapp.api.model.http.v1.UpdateUserAttributesResponse;
 import com.codingronin.spring.webapp.api.model.v1.User;
 import com.codingronin.spring.webapp.api.service.UserService;
 
@@ -70,5 +75,14 @@ public class UsersApiController implements RestApiController {
     return ResponseEntity.ok(resp);
   }
 
+  @PatchMapping
+  public ResponseEntity<UpdateUserAttributesResponse> updateAttributes(
+      @RequestAttribute(name = CLIENT_RESPONSE_ID_KEY) String responseId,
+      @Valid @RequestBody UpdateUserAttributesRequest payload) {
+    List<User> users = userService.updateAttributes(responseId, payload.getUsers());
+    UpdateUserAttributesResponse resp = new UpdateUserAttributesResponse();
+    resp.setUsers(users);
+    return ResponseEntity.ok(resp);
+  }
 
 }

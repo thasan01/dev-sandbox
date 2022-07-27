@@ -8,7 +8,10 @@ import com.codingronin.spring.webapp.api.model.v1.User;
 
 @Repository
 public interface UserRepository extends PagingAndSortingRepository<User, Integer> {
+
   Page<User> findAll(Pageable pageable);
+
+  User findByUserName(String userName);
 
   void deleteByUserName(String userName);
 }
