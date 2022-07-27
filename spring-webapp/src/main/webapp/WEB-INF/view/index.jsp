@@ -3,6 +3,8 @@
 <html lang="en">
 <head>
 	<title>Hello World</title>
+	<link href="css/app.css" rel="stylesheet"></link>
+	<script src="js/app.js"></script>
 </head>
 <body>
 	<div>
