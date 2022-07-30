@@ -9,7 +9,7 @@ import com.codingronin.spring.webapp.filter.TransactionFilter;
 public class AppConfig {
 
   @Bean
-  public FilterRegistrationBean<TransactionFilter> logFilter() {
+  public FilterRegistrationBean<TransactionFilter> transactionFilter() {
     FilterRegistrationBean<TransactionFilter> registrationBean = new FilterRegistrationBean<>();
     registrationBean.setFilter(new TransactionFilter());
     registrationBean.addUrlPatterns("/api/*");
