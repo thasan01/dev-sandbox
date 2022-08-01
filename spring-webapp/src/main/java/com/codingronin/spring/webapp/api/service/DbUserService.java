@@ -12,12 +12,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.FieldError;
 import com.codingronin.spring.webapp.api.errors.BadInputException;
 import com.codingronin.spring.webapp.api.errors.ResourceNotFoundException;
+import com.codingronin.spring.webapp.api.model.http.v1.CreateUser;
 import com.codingronin.spring.webapp.api.model.http.v1.UserAttributes;
+import com.codingronin.spring.webapp.api.model.v1.AuthProfile;
+import com.codingronin.spring.webapp.api.model.v1.InternalBasicAuthProfile;
 import com.codingronin.spring.webapp.api.model.v1.User;
 import com.codingronin.spring.webapp.api.repository.UserRepository;
 
@@ -28,6 +32,9 @@ public class DbUserService implements UserService {
 
   @Autowired
   UserRepository userRepo;
+
+  @Autowired
+  PasswordEncoder passwordEncoder;
 
   @Override
   public User getUser(String userName) {
@@ -40,8 +47,28 @@ public class DbUserService implements UserService {
   }
 
   @Override
-  public List<User> createUsers(List<User> users) {
-    return toList(userRepo.saveAll(users));
+  public List<User> createUsers(List<CreateUser> users) {
+
+    List<User> dbUsers = users.stream().map(elem -> {
+      User user = new User();
+      user.setUserName(elem.getUserName());
+      user.setEmail(elem.getEmail());
+
+      String inputPass = elem.getPassword();
+      if (inputPass != null) {
+        InternalBasicAuthProfile auth = new InternalBasicAuthProfile();
+        auth.setEnabled(true);
+        auth.setPassword(passwordEncoder.encode(inputPass));
+        List<AuthProfile> authProfiles = new ArrayList<>();
+        authProfiles.add(auth);
+        user.setAuthProfiles(authProfiles);
+      }
+
+      return user;
+    }).collect(Collectors.toList());
+
+
+    return toList(userRepo.saveAll(dbUsers));
   }
 
   @Override
@@ -108,4 +135,5 @@ public class DbUserService implements UserService {
   <T> List<T> toList(Iterable<T> iter) {
     return StreamSupport.stream(iter.spliterator(), false).collect(Collectors.toList());
   }
+
 }

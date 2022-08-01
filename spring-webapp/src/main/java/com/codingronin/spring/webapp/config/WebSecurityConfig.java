@@ -1,6 +1,7 @@
 package com.codingronin.spring.webapp.config;
 
 import static org.springframework.security.config.Customizer.withDefaults;
+import javax.sql.DataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -11,6 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import com.codingronin.spring.webapp.ui.handler.CustomAccessDeniedHandler;
 
@@ -27,7 +29,8 @@ public class WebSecurityConfig {
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http,
-      InMemoryUserDetailsManager inMemUserDetails) throws Exception {
+      InMemoryUserDetailsManager inMemUserDetails, JdbcUserDetailsManager jdbcUserDetailsManager)
+      throws Exception {
 
     http.authorizeRequests().antMatchers("/", "/home").permitAll();
 
@@ -38,7 +41,8 @@ public class WebSecurityConfig {
         .userDetailsService(inMemUserDetails).exceptionHandling()
         .accessDeniedHandler(new CustomAccessDeniedHandler());
 
-    http.authorizeRequests().antMatchers("/api/**").authenticated().and().httpBasic(withDefaults());
+    http.authorizeRequests().antMatchers("/api/**").authenticated().and()
+        .userDetailsService(jdbcUserDetailsManager);
 
     // Enable /h2-console endpoint
     http.csrf().ignoringAntMatchers("/h2-console/**").and().headers().frameOptions().sameOrigin();
@@ -55,6 +59,7 @@ public class WebSecurityConfig {
   @Bean
   public PasswordEncoder passwordEncoder() {
     return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+    // return new BCryptPasswordEncoder();
   }
 
   @Bean
@@ -67,6 +72,21 @@ public class WebSecurityConfig {
         .passwordEncoder(passwordEncoder::encode).build();
 
     return new InMemoryUserDetailsManager(user1, user2);
+  }
+
+  @Bean
+  public JdbcUserDetailsManager jdbcUserDetailsManager(DataSource dataSource) {
+
+    String getByUserNameQuery =
+        "SELECT u.user_name AS username, ap.password AS password, ap.enabled  as enabled "
+            + "FROM app_user u "
+            + "INNER JOIN app_user_auth_profiles uap ON u.id = uap.app_user_id "
+            + "INNER JOIN app_auth_profile ap ON uap.auth_profiles_id = ap.id "
+            + "WHERE u.user_name = ?";
+
+    JdbcUserDetailsManager manager = new JdbcUserDetailsManager(dataSource);
+    manager.setUsersByUsernameQuery(getByUserNameQuery);
+    return manager;
   }
 
 }

@@ -3,7 +3,6 @@ package com.codingronin.spring.webapp.api.controller.v1;
 import static com.codingronin.spring.webapp.api.util.CollectionsUtil.nullSafe;
 import static com.codingronin.spring.webapp.filter.TransactionFilter.CLIENT_RESPONSE_ID_KEY;
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.codingronin.spring.webapp.api.controller.RestApiController;
+import com.codingronin.spring.webapp.api.model.http.v1.CreateUser;
 import com.codingronin.spring.webapp.api.model.http.v1.CreateUserRequest;
 import com.codingronin.spring.webapp.api.model.http.v1.CreateUserResponse;
 import com.codingronin.spring.webapp.api.model.http.v1.DeleteUserRequest;
@@ -55,15 +55,8 @@ public class UsersApiController implements RestApiController {
   @PostMapping
   public ResponseEntity<CreateUserResponse> create(@Valid @RequestBody CreateUserRequest payload) {
 
-    List<User> users = nullSafe(payload.getUsers()).stream().map(elem -> {
-      User user = new User();
-      user.setUserName(elem.getUserName());
-      user.setEmail(elem.getEmail());
-      return user;
-    }).collect(Collectors.toList());
-
     CreateUserResponse resp = new CreateUserResponse();
-    resp.setUsers(userService.createUsers(users));
+    resp.setUsers(userService.createUsers((List<CreateUser>) nullSafe(payload.getUsers())));
     return ResponseEntity.ok(resp);
   }
 
