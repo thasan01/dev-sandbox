@@ -39,7 +39,7 @@ public class User {
   List<AuthProfile> authProfiles;
 
   @ManyToMany(cascade = {CascadeType.ALL})
-  @JoinTable(joinColumns = @JoinColumn(name = "user_id"),
+  @JoinTable(name = "app_user_roles", joinColumns = @JoinColumn(name = "user_id"),
       inverseJoinColumns = @JoinColumn(name = "role_id"))
   List<Role> roles;
 }

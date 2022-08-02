@@ -35,10 +35,10 @@ INSERT INTO app_role_permissions (role_id, permission_id) VALUES (1,1); -- ADMIN
 INSERT INTO app_role_permissions (role_id, permission_id) VALUES (1,2); -- ADMIN -> CREATE_ALL
 INSERT INTO app_role_permissions (role_id, permission_id) VALUES (1,3); -- ADMIN -> UPDATE_ALL
 INSERT INTO app_role_permissions (role_id, permission_id) VALUES (1,4); -- ADMIN -> DELETE_ALL
---INSERT INTO app_role_permissions (role_id, permission_id) VALUES (3,1); -- DEVELOPER -> READ_ALL
---INSERT INTO app_role_permissions (role_id, permission_id) VALUES (3,2); -- DEVELOPER -> CREATE_ALL
---INSERT INTO app_role_permissions (role_id, permission_id) VALUES (3,3); -- DEVELOPER -> UPDATE_ALL
---INSERT INTO app_role_permissions (role_id, permission_id) VALUES (3,4); -- DEVELOPER -> DELETE_ALL
+INSERT INTO app_role_permissions (role_id, permission_id) VALUES (3,1); -- DEVELOPER -> READ_ALL
+INSERT INTO app_role_permissions (role_id, permission_id) VALUES (3,2); -- DEVELOPER -> CREATE_ALL
+INSERT INTO app_role_permissions (role_id, permission_id) VALUES (3,3); -- DEVELOPER -> UPDATE_ALL
+INSERT INTO app_role_permissions (role_id, permission_id) VALUES (3,4); -- DEVELOPER -> DELETE_ALL
 
 
 --Roles to Users Mappings

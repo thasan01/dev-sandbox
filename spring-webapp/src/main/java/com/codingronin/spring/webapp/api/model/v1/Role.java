@@ -9,7 +9,6 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import lombok.Getter;
@@ -30,13 +29,13 @@ public class Role {
   @NotEmpty
   String name;
 
-  @OneToMany(cascade = {CascadeType.ALL})
+  @ManyToMany(cascade = {CascadeType.ALL})
   @JoinTable(joinColumns = @JoinColumn(name = "role_id"),
       inverseJoinColumns = @JoinColumn(name = "permission_id"))
   List<Permission> permissions;
 
   @ManyToMany(cascade = {CascadeType.ALL})
-  @JoinTable(joinColumns = @JoinColumn(name = "role_id"),
+  @JoinTable(name = "app_user_roles", joinColumns = @JoinColumn(name = "role_id"),
       inverseJoinColumns = @JoinColumn(name = "user_id"))
   List<User> members;
 }
