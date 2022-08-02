@@ -32,6 +32,11 @@ public class WebSecurityConfig {
       InMemoryUserDetailsManager inMemUserDetails, JdbcUserDetailsManager jdbcUserDetailsManager)
       throws Exception {
 
+    // if (true) {
+    // return http.csrf().ignoringAntMatchers("/**").and().headers().frameOptions().sameOrigin()
+    // .and().build();
+    // }
+
     http.authorizeRequests().antMatchers("/", "/home").permitAll();
 
     http.authorizeRequests().antMatchers("/debug/auth/default").authenticated().and()
@@ -77,15 +82,24 @@ public class WebSecurityConfig {
   @Bean
   public JdbcUserDetailsManager jdbcUserDetailsManager(DataSource dataSource) {
 
-    String getByUserNameQuery =
-        "SELECT u.user_name AS username, ap.password AS password, ap.enabled  as enabled "
-            + "FROM app_user u "
-            + "INNER JOIN app_user_auth_profiles uap ON u.id = uap.app_user_id "
-            + "INNER JOIN app_auth_profile ap ON uap.auth_profiles_id = ap.id "
+    String getUsersByUserNameQuery =
+        "SELECT u.user_name AS username, ap.password AS password, ap.enabled  as enabled " //
+            + "FROM app_user u " //
+            + "INNER JOIN app_user_auth_profiles uap ON u.id = uap.user_id " //
+            + "INNER JOIN app_auth_profile ap ON uap.auth_profile_id = ap.id " //
+            + "WHERE u.user_name = ?";
+
+    String getAuthoritiesByUserNameQuery =
+        "SELECT u.user_name AS username, p.name AS authority " + "FROM app_user u "//
+            + "INNER JOIN app_user_roles ur ON u.id = ur.user_id "//
+            + "INNER JOIN app_role r ON r.id = ur.role_id "//
+            + "INNER JOIN app_role_permissions rp ON r.id = rp.role_id "//
+            + "INNER JOIN app_permission p ON p.id = rp.permission_id "//
             + "WHERE u.user_name = ?";
 
     JdbcUserDetailsManager manager = new JdbcUserDetailsManager(dataSource);
-    manager.setUsersByUsernameQuery(getByUserNameQuery);
+    manager.setUsersByUsernameQuery(getUsersByUserNameQuery);
+    manager.setAuthoritiesByUsernameQuery(getAuthoritiesByUserNameQuery);
     return manager;
   }
 

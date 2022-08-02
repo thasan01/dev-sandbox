@@ -7,6 +7,9 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,6 +30,16 @@ public class User {
   @Column(unique = true)
   String email;
 
-  @OneToMany(cascade = {CascadeType.ALL})
+
+  @OneToMany(cascade = {CascadeType.ALL}) // Cascade.ALL is used to save child objects as when
+                                          // saving the User object.
+  // JoinTable annotation allows you to define the names of the two derived fields
+  @JoinTable(joinColumns = @JoinColumn(name = "user_id"),
+      inverseJoinColumns = @JoinColumn(name = "auth_profile_id"))
   List<AuthProfile> authProfiles;
+
+  @ManyToMany(cascade = {CascadeType.ALL})
+  @JoinTable(joinColumns = @JoinColumn(name = "user_id"),
+      inverseJoinColumns = @JoinColumn(name = "role_id"))
+  List<Role> roles;
 }

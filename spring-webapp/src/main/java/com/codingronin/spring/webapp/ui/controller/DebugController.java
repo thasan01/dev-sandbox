@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 public class DebugController {
 
-
   @GetMapping(value = "/debug/auth/default", produces = MediaType.TEXT_PLAIN_VALUE)
   @ResponseBody
   public String defaultAuth() {
