@@ -9,9 +9,14 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import com.google.gson.Gson;
+import org.springframework.web.util.NestedServletException;
+import com.codingronin.spring.webapp.ui.handler.AppAccessDeniedHandler;
 
+
+@Component
 public class TransactionFilter extends OncePerRequestFilter {
 
   static Logger log = LoggerFactory.getLogger(TransactionFilter.class);
@@ -19,7 +24,7 @@ public class TransactionFilter extends OncePerRequestFilter {
   public static final String CLIENT_RESPONSE_ID_KEY = "x-response-id";
 
   @Autowired
-  Gson gson;
+  AppAccessDeniedHandler accessDeniedHandler;
 
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
@@ -38,6 +43,14 @@ public class TransactionFilter extends OncePerRequestFilter {
     log.info("Entering filter for request. responseId: {}, requestUrl: {}", responseId, requestUri);
     try {
       filterChain.doFilter(request, response);
+    } catch (NestedServletException ex) {
+      Throwable cause = ex.getCause();
+      if (cause instanceof AccessDeniedException)
+        throw new AccessDeniedException(cause.getMessage(), cause);
+      else
+        throw ex;
+    } catch (AccessDeniedException ex) {
+      accessDeniedHandler.handle(request, response, ex);
     } catch (Exception ex) {
       log.error("Encountered error for responseId {}", responseId, ex);
     }

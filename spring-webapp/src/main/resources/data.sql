@@ -44,10 +44,10 @@ INSERT INTO app_role (name) VALUES ('DEVELOPER'); --id=3
 INSERT INTO app_role_permissions (role_id, permission_id) VALUES (1,1); -- ADMIN -> *::*::*
 INSERT INTO app_role_permissions (role_id, permission_id) VALUES (2,9); -- GUEST -> UI::*::VIEW
 INSERT INTO app_role_permissions (role_id, permission_id) VALUES (2,13); -- GUEST -> API::*::VIEW
-INSERT INTO app_role_permissions (role_id, permission_id) VALUES (3,10); -- DEVELOPER -> *::*::CREATE
-INSERT INTO app_role_permissions (role_id, permission_id) VALUES (3,11); -- DEVELOPER -> *::*::UPDATE
-INSERT INTO app_role_permissions (role_id, permission_id) VALUES (3,12); -- DEVELOPER -> *::*::UPDATE
-INSERT INTO app_role_permissions (role_id, permission_id) VALUES (3,13); -- DEVELOPER -> *::*::DELETE
+INSERT INTO app_role_permissions (role_id, permission_id) VALUES (3,10); -- DEVELOPER -> API::*::CREATE
+INSERT INTO app_role_permissions (role_id, permission_id) VALUES (3,11); -- DEVELOPER -> API::*::UPDATE
+INSERT INTO app_role_permissions (role_id, permission_id) VALUES (3,12); -- DEVELOPER -> API::*::UPDATE
+INSERT INTO app_role_permissions (role_id, permission_id) VALUES (3,13); -- DEVELOPER -> API::*::DELETE
 
 --Roles to Users Mappings
 INSERT INTO app_user_roles (user_id, role_id) VALUES (1,1); -- user1 -> ADMIN

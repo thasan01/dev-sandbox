@@ -4,6 +4,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 import javax.sql.DataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
@@ -24,6 +25,8 @@ import com.codingronin.spring.webapp.ui.handler.AppAccessDeniedHandler;
  */
 @Configuration
 @EnableWebSecurity
+// This is required for method level authorization
+@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true, jsr250Enabled = true)
 public class WebSecurityConfig {
 
   @Bean
@@ -32,6 +35,9 @@ public class WebSecurityConfig {
       InMemoryUserDetailsManager inMemUserDetails, //
       JdbcUserDetailsManager jdbcUserDetailsManager//
   ) throws Exception {
+
+    // Enable /h2-console endpoint
+    http.csrf().ignoringAntMatchers("/h2-console/**").and().headers().frameOptions().sameOrigin();
 
     http.authorizeRequests().antMatchers("/", "/home").permitAll();
 
@@ -42,13 +48,9 @@ public class WebSecurityConfig {
         .userDetailsService(inMemUserDetails).exceptionHandling()
         .accessDeniedHandler(accessDeniedHandler);
 
-    http.authorizeRequests().antMatchers("/api/**").authenticated().and()
+    http.csrf().disable().authorizeRequests().antMatchers("/api/**").authenticated().and()
         .userDetailsService(jdbcUserDetailsManager).exceptionHandling()
         .accessDeniedHandler(accessDeniedHandler);
-
-    // Enable /h2-console endpoint
-    http.csrf().ignoringAntMatchers("/h2-console/**").and().headers().frameOptions().sameOrigin();
-
 
     return http.build();
   }

@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,7 +42,9 @@ public class UsersApiController implements RestApiController {
   @Autowired
   UserService userService;
 
+
   @GetMapping
+  @PreAuthorize("hasAnyAuthority('*::*::*', 'API::*::VIEW', 'API::USERS::VIEW')")
   public ResponseEntity<GetUsersResponse> get(//
       @RequestParam(required = true) int page, //
       @RequestParam(defaultValue = DEFAULT_GET_SIZE) int size//
@@ -53,6 +56,7 @@ public class UsersApiController implements RestApiController {
   }
 
   @PostMapping
+  @PreAuthorize("hasAnyAuthority('*::*::*', 'API::*::CREATE', 'API::USERS::CREATE')")
   public ResponseEntity<CreateUserResponse> create(@Valid @RequestBody CreateUserRequest payload) {
 
     CreateUserResponse resp = new CreateUserResponse();
@@ -61,6 +65,7 @@ public class UsersApiController implements RestApiController {
   }
 
   @DeleteMapping
+  @PreAuthorize("hasAnyAuthority('*::*::*', 'API::*::DELETE', 'API::USERS::DELETE')")
   public ResponseEntity<DeleteUserResponse> create(@Valid @RequestBody DeleteUserRequest payload) {
     userService.deleteUsers(payload.getUserNames());
     DeleteUserResponse resp = new DeleteUserResponse();
@@ -69,6 +74,7 @@ public class UsersApiController implements RestApiController {
   }
 
   @PatchMapping
+  @PreAuthorize("hasAnyAuthority('*::*::*', 'API::*::UPDATE', 'API::USERS::UPDATE')")
   public ResponseEntity<UpdateUserAttributesResponse> updateAttributes(
       @RequestAttribute(name = CLIENT_RESPONSE_ID_KEY) String responseId,
       @Valid @RequestBody UpdateUserAttributesRequest payload) {
