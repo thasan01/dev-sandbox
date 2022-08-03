@@ -14,11 +14,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import com.codingronin.spring.webapp.api.controller.ApiAccessDeniedHandler;
 import com.codingronin.spring.webapp.ui.handler.CustomAccessDeniedHandler;
 
 
 /**
- * reference:
+ * Reference:
  * https://spring.io/blog/2022/02/21/spring-security-without-the-websecurityconfigureradapter
  *
  */
@@ -26,16 +27,11 @@ import com.codingronin.spring.webapp.ui.handler.CustomAccessDeniedHandler;
 @EnableWebSecurity
 public class WebSecurityConfig {
 
-
   @Bean
-  public SecurityFilterChain filterChain(HttpSecurity http,
-      InMemoryUserDetailsManager inMemUserDetails, JdbcUserDetailsManager jdbcUserDetailsManager)
-      throws Exception {
-
-    // if (true) {
-    // return http.csrf().ignoringAntMatchers("/**").and().headers().frameOptions().sameOrigin()
-    // .and().build();
-    // }
+  public SecurityFilterChain filterChain(HttpSecurity http, //
+      InMemoryUserDetailsManager inMemUserDetails, //
+      JdbcUserDetailsManager jdbcUserDetailsManager//
+  ) throws Exception {
 
     http.authorizeRequests().antMatchers("/", "/home").permitAll();
 
@@ -47,7 +43,8 @@ public class WebSecurityConfig {
         .accessDeniedHandler(new CustomAccessDeniedHandler());
 
     http.authorizeRequests().antMatchers("/api/**").authenticated().and()
-        .userDetailsService(jdbcUserDetailsManager);
+        .userDetailsService(jdbcUserDetailsManager).exceptionHandling()
+        .accessDeniedHandler(new ApiAccessDeniedHandler());
 
     // Enable /h2-console endpoint
     http.csrf().ignoringAntMatchers("/h2-console/**").and().headers().frameOptions().sameOrigin();
@@ -64,7 +61,6 @@ public class WebSecurityConfig {
   @Bean
   public PasswordEncoder passwordEncoder() {
     return PasswordEncoderFactories.createDelegatingPasswordEncoder();
-    // return new BCryptPasswordEncoder();
   }
 
   @Bean
@@ -89,13 +85,18 @@ public class WebSecurityConfig {
             + "INNER JOIN app_auth_profile ap ON uap.auth_profile_id = ap.id " //
             + "WHERE u.user_name = ?";
 
-    String getAuthoritiesByUserNameQuery =
-        "SELECT u.user_name AS username, p.name AS authority " + "FROM app_user u "//
-            + "INNER JOIN app_user_roles ur ON u.id = ur.user_id "//
-            + "INNER JOIN app_role r ON r.id = ur.role_id "//
-            + "INNER JOIN app_role_permissions rp ON r.id = rp.role_id "//
-            + "INNER JOIN app_permission p ON p.id = rp.permission_id "//
-            + "WHERE u.user_name = ?";
+    String getAuthoritiesByUserNameQuery = "WITH user_details AS ( " //
+        + "  SELECT u.user_name AS username, r.name AS role, p.name AS permission " //
+        + "       FROM app_user u " //
+        + "       INNER JOIN app_user_roles ur ON u.id = ur.user_id "//
+        + "       INNER JOIN app_role r ON r.id = ur.role_id "//
+        + "       INNER JOIN app_role_permissions rp ON r.id = rp.role_id "//
+        + "       INNER JOIN app_permission p ON p.id = rp.permission_id " //
+        + "   WHERE u.user_name = ? "//
+        + " ) "//
+        + " SELECT ud.username AS username, CONCAT('ROLE_', ud.role) AS authority FROM user_details ud "//
+        + " UNION "//
+        + " SELECT ud.username AS username, ud.permission AS authority FROM user_details ud";
 
     JdbcUserDetailsManager manager = new JdbcUserDetailsManager(dataSource);
     manager.setUsersByUsernameQuery(getUsersByUserNameQuery);
