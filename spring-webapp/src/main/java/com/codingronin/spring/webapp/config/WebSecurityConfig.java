@@ -15,7 +15,7 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import com.codingronin.spring.webapp.api.controller.ApiAccessDeniedHandler;
-import com.codingronin.spring.webapp.ui.handler.CustomAccessDeniedHandler;
+import com.codingronin.spring.webapp.ui.handler.UIAccessDeniedHandler;
 
 
 /**
@@ -40,7 +40,7 @@ public class WebSecurityConfig {
 
     http.authorizeRequests().antMatchers("/debug/auth/inmem").hasRole("ADMIN").and()
         .userDetailsService(inMemUserDetails).exceptionHandling()
-        .accessDeniedHandler(new CustomAccessDeniedHandler());
+        .accessDeniedHandler(new UIAccessDeniedHandler());
 
     http.authorizeRequests().antMatchers("/api/**").authenticated().and()
         .userDetailsService(jdbcUserDetailsManager).exceptionHandling()
