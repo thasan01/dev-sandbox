@@ -14,8 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
-import com.codingronin.spring.webapp.api.controller.ApiAccessDeniedHandler;
-import com.codingronin.spring.webapp.ui.handler.UIAccessDeniedHandler;
+import com.codingronin.spring.webapp.ui.handler.AppAccessDeniedHandler;
 
 
 /**
@@ -29,6 +28,7 @@ public class WebSecurityConfig {
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http, //
+      AppAccessDeniedHandler accessDeniedHandler, //
       InMemoryUserDetailsManager inMemUserDetails, //
       JdbcUserDetailsManager jdbcUserDetailsManager//
   ) throws Exception {
@@ -40,14 +40,15 @@ public class WebSecurityConfig {
 
     http.authorizeRequests().antMatchers("/debug/auth/inmem").hasRole("ADMIN").and()
         .userDetailsService(inMemUserDetails).exceptionHandling()
-        .accessDeniedHandler(new UIAccessDeniedHandler());
+        .accessDeniedHandler(accessDeniedHandler);
 
     http.authorizeRequests().antMatchers("/api/**").authenticated().and()
         .userDetailsService(jdbcUserDetailsManager).exceptionHandling()
-        .accessDeniedHandler(new ApiAccessDeniedHandler());
+        .accessDeniedHandler(accessDeniedHandler);
 
     // Enable /h2-console endpoint
     http.csrf().ignoringAntMatchers("/h2-console/**").and().headers().frameOptions().sameOrigin();
+
 
     return http.build();
   }

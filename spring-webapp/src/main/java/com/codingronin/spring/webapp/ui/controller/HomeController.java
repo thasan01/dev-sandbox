@@ -13,4 +13,11 @@ public class HomeController {
     return new ModelAndView("index");
   }
 
+
+  @GetMapping("/access-denied")
+  public ModelAndView accessDenied(Map<String, Object> model) {
+    return new ModelAndView("error-access-denied");
+  }
+
+
 }
