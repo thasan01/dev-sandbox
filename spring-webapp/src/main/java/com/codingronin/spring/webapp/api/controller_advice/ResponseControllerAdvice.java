@@ -1,4 +1,4 @@
-package com.codingronin.spring.webapp.api.controller;
+package com.codingronin.spring.webapp.api.controller_advice;
 
 import static com.codingronin.spring.webapp.filter.TransactionFilter.CLIENT_RESPONSE_ID_KEY;
 import java.lang.reflect.Method;
@@ -11,6 +11,7 @@ import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
+import com.codingronin.spring.webapp.api.controller.RestApiController;
 import com.codingronin.spring.webapp.api.model.http.v1.ApiBaseResponse;
 
 /**

@@ -11,7 +11,5 @@ import lombok.Setter;
 @NoArgsConstructor
 
 public class GetUsersResponse extends ApiBaseResponse {
-
   List<User> users;
-
 }
