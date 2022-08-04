@@ -52,6 +52,11 @@ public class WebSecurityConfig {
         .userDetailsService(jdbcUserDetailsManager).exceptionHandling()
         .accessDeniedHandler(accessDeniedHandler);
 
+    http.authorizeRequests().antMatchers("/user/**").authenticated().and()
+        .userDetailsService(jdbcUserDetailsManager)//
+        .logout().logoutUrl("/logout").logoutSuccessUrl("/")//
+        .and().formLogin().loginPage("/login");
+
     return http.build();
   }
 
