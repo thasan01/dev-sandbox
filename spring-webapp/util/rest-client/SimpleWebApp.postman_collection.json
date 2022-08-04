@@ -14,6 +14,21 @@
 						{
 							"name": "Get Users",
 							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "username",
+											"value": "user3",
+											"type": "string"
+										},
+										{
+											"key": "password",
+											"value": "abc123",
+											"type": "string"
+										}
+									]
+								},
 								"method": "GET",
 								"header": [],
 								"url": {
@@ -43,11 +58,26 @@
 						{
 							"name": "Create Users",
 							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "username",
+											"value": "user1",
+											"type": "string"
+										},
+										{
+											"key": "password",
+											"value": "abc123",
+											"type": "string"
+										}
+									]
+								},
 								"method": "POST",
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"users\" : [\r\n        {\r\n            \"userName\" : \"john.doe\",\r\n            \"email\" : \"john.doe@test.com\"\r\n        }\r\n    ]\r\n}",
+									"raw": "{\r\n    \"users\" : [\r\n        {\r\n            \"userName\" : \"john.doe\",\r\n            \"email\" : \"john.doe@test.com\",\r\n            \"password\" : \"abc123\"\r\n        }\r\n    ]\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"
