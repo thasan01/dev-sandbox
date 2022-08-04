@@ -16,4 +16,6 @@ public class CreateUser {
 
   @Email
   String email;
+
+  String password;
 }
