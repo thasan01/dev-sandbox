@@ -56,7 +56,166 @@
 							"response": []
 						},
 						{
-							"name": "Create Users",
+							"name": "Get Single User",
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "username",
+											"value": "user3",
+											"type": "string"
+										},
+										{
+											"key": "password",
+											"value": "abc123",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{API_BASE_URL}}/rest/v1/Users/user2",
+									"host": [
+										"{{API_BASE_URL}}"
+									],
+									"path": [
+										"rest",
+										"v1",
+										"Users",
+										"user2"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Roles",
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "username",
+											"value": "user3",
+											"type": "string"
+										},
+										{
+											"key": "password",
+											"value": "abc123",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{API_BASE_URL}}/rest/v1/Roles?page=0&size=50",
+									"host": [
+										"{{API_BASE_URL}}"
+									],
+									"path": [
+										"rest",
+										"v1",
+										"Roles"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "0"
+										},
+										{
+											"key": "size",
+											"value": "50"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Single Role",
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "username",
+											"value": "user3",
+											"type": "string"
+										},
+										{
+											"key": "password",
+											"value": "abc123",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{API_BASE_URL}}/rest/v1/Roles/GUEST",
+									"host": [
+										"{{API_BASE_URL}}"
+									],
+									"path": [
+										"rest",
+										"v1",
+										"Roles",
+										"GUEST"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update User Entitlement Memberships",
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "username",
+											"value": "user1",
+											"type": "string"
+										},
+										{
+											"key": "password",
+											"value": "abc123",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"memberships\" : [\r\n        {\r\n            \"action\" : \"ADD\",\r\n            \"name\" : \"ADMIN\"\r\n        }\r\n    ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{API_BASE_URL}}/rest/v1/Users/user2/entitlementMemberships",
+									"host": [
+										"{{API_BASE_URL}}"
+									],
+									"path": [
+										"rest",
+										"v1",
+										"Users",
+										"user2",
+										"entitlementMemberships"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create Users Copy",
 							"request": {
 								"auth": {
 									"type": "basic",
