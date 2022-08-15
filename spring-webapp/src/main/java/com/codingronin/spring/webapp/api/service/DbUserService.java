@@ -1,11 +1,13 @@
 package com.codingronin.spring.webapp.api.service;
 
+import static com.codingronin.spring.webapp.api.util.CollectionsUtil.nullSafe;
 import static com.codingronin.spring.webapp.api.util.ObjectsUtil.nullSafeToString;
 import static com.codingronin.spring.webapp.api.util.ObjectsUtil.toList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.slf4j.Logger;
@@ -21,7 +23,9 @@ import com.codingronin.spring.webapp.api.errors.ResourceNotFoundException;
 import com.codingronin.spring.webapp.api.model.http.v1.CreateUser;
 import com.codingronin.spring.webapp.api.model.http.v1.UserAttributes;
 import com.codingronin.spring.webapp.api.model.v1.AuthProfile;
+import com.codingronin.spring.webapp.api.model.v1.EntitlementMembership;
 import com.codingronin.spring.webapp.api.model.v1.InternalBasicAuthProfile;
+import com.codingronin.spring.webapp.api.model.v1.Role;
 import com.codingronin.spring.webapp.api.model.v1.User;
 import com.codingronin.spring.webapp.api.repository.UserRepository;
 
@@ -32,6 +36,9 @@ public class DbUserService implements UserService {
 
   @Autowired
   UserRepository userRepo;
+
+  @Autowired
+  RoleService roleService;
 
   @Autowired
   PasswordEncoder passwordEncoder;
@@ -128,6 +135,58 @@ public class DbUserService implements UserService {
       }
     }
 
+    return user;
+  }
+
+  @Override
+  public User updateEntitlementMemberships(String userName,
+      List<EntitlementMembership> entitlementMemberships) {
+
+    User user = getUser(userName);
+
+    if (user == null)
+      return null;
+
+    return updateEntitlementMemberships(user, entitlementMemberships);
+  }
+
+  @Override
+  public User updateEntitlementMemberships(User user,
+      List<EntitlementMembership> entitlementMemberships) {
+
+    List<Role> userRoles = user.getRoles();
+
+    if (userRoles == null)
+      userRoles = new ArrayList<>();
+
+    Set<String> existingRoleNames =
+        userRoles.stream().map(Role::getName).collect(Collectors.toSet());
+
+    List<EntitlementMembership> addMemberships = nullSafe(entitlementMemberships).stream()
+        .filter(elem -> EntitlementMembership.Action.ADD.equals(elem.getAction()))
+        .collect(Collectors.toList());
+
+    Set<String> removeMemberships = nullSafe(entitlementMemberships).stream()
+        .filter(elem -> EntitlementMembership.Action.REMOVE.equals(elem.getAction()))
+        .map(EntitlementMembership::getName).collect(Collectors.toSet());
+
+    log.debug("Removing roles from user: {}. roles: {}", user.getUserName(), removeMemberships);
+
+    userRoles = userRoles.stream().filter(elem -> !removeMemberships.contains(elem.getName()))
+        .collect(Collectors.toList());
+
+    log.debug("userRoles after removal. userName: {}. roles: {}", user.getUserName(), userRoles);
+
+    for (EntitlementMembership membership : addMemberships) {
+      String newRoleName = membership.getName();
+      if (!existingRoleNames.contains(newRoleName)) {
+        Role role = roleService.getRole(membership.getName());
+        userRoles.add(role);
+      }
+    }
+
+    user.setRoles(userRoles);
+    userRepo.save(user);
     return user;
   }
 

@@ -30,6 +30,8 @@ import com.codingronin.spring.webapp.api.model.http.v1.GetSingleUserResponse;
 import com.codingronin.spring.webapp.api.model.http.v1.GetUsersResponse;
 import com.codingronin.spring.webapp.api.model.http.v1.UpdateUserAttributesRequest;
 import com.codingronin.spring.webapp.api.model.http.v1.UpdateUserAttributesResponse;
+import com.codingronin.spring.webapp.api.model.http.v1.UpdateUserMembershipsRequest;
+import com.codingronin.spring.webapp.api.model.http.v1.UpdateUserMembershipsResponse;
 import com.codingronin.spring.webapp.api.model.v1.User;
 import com.codingronin.spring.webapp.api.service.UserService;
 
@@ -92,5 +94,19 @@ public class UsersApiController extends RestApiController {
     resp.setUsers(users);
     return ResponseEntity.ok(resp);
   }
+
+  @PostMapping("/{userName}/entitlementMemberships")
+  @PreAuthorize("hasAnyAuthority('*::*::*', 'API::*::UPDATE', 'API::USERS::UPDATE')")
+  public ResponseEntity<UpdateUserMembershipsResponse> updateMemberships(
+      @RequestAttribute(name = CLIENT_RESPONSE_ID_KEY) String responseId,
+      @PathVariable(value = "userName") String userName,
+      @Valid @RequestBody UpdateUserMembershipsRequest payload) {
+
+    User user = userService.updateEntitlementMemberships(userName, payload.getMemberships());
+    UpdateUserMembershipsResponse resp = new UpdateUserMembershipsResponse();
+    resp.setUser(user);
+    return ResponseEntity.ok(resp);
+  }
+
 
 }
