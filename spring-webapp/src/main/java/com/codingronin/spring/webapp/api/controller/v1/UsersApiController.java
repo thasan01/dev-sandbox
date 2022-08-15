@@ -13,6 +13,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,6 +26,7 @@ import com.codingronin.spring.webapp.api.model.http.v1.CreateUserRequest;
 import com.codingronin.spring.webapp.api.model.http.v1.CreateUserResponse;
 import com.codingronin.spring.webapp.api.model.http.v1.DeleteUserRequest;
 import com.codingronin.spring.webapp.api.model.http.v1.DeleteUserResponse;
+import com.codingronin.spring.webapp.api.model.http.v1.GetSingleUserResponse;
 import com.codingronin.spring.webapp.api.model.http.v1.GetUsersResponse;
 import com.codingronin.spring.webapp.api.model.http.v1.UpdateUserAttributesRequest;
 import com.codingronin.spring.webapp.api.model.http.v1.UpdateUserAttributesResponse;
@@ -50,6 +52,15 @@ public class UsersApiController extends RestApiController {
     log.debug("Getting users with startIndex:{}, count:{}", page, size);
     GetUsersResponse resp = new GetUsersResponse();
     resp.setUsers(userService.getUsers(page, size));
+    return ResponseEntity.ok(resp);
+  }
+
+  @GetMapping("/{userName}")
+  @PreAuthorize("hasAnyAuthority('*::*::*', 'API::*::VIEW', 'API::USERS::VIEW')")
+  public ResponseEntity<GetSingleUserResponse> getSingle(
+      @PathVariable(value = "userName") String userName) {
+    GetSingleUserResponse resp = new GetSingleUserResponse();
+    resp.setUser(userService.getUser(userName));
     return ResponseEntity.ok(resp);
   }
 
