@@ -1,12 +1,12 @@
 package com.codingronin.spring.webapp.api.service;
 
 import static com.codingronin.spring.webapp.api.util.ObjectsUtil.nullSafeToString;
+import static com.codingronin.spring.webapp.api.util.ObjectsUtil.toList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -131,9 +131,5 @@ public class DbUserService implements UserService {
     return user;
   }
 
-
-  <T> List<T> toList(Iterable<T> iter) {
-    return StreamSupport.stream(iter.spliterator(), false).collect(Collectors.toList());
-  }
 
 }

@@ -31,17 +31,15 @@ import com.codingronin.spring.webapp.api.model.http.v1.UpdateUserAttributesRespo
 import com.codingronin.spring.webapp.api.model.v1.User;
 import com.codingronin.spring.webapp.api.service.UserService;
 
-@RestController("ApiControllerV1")
+@RestController("UsersApiControllerV1")
 @RequestMapping("/api/rest/v1/Users")
 @Validated
-public class UsersApiController implements RestApiController {
+public class UsersApiController extends RestApiController {
 
   static Logger log = LoggerFactory.getLogger(UsersApiController.class);
-  static final String DEFAULT_GET_SIZE = "50";
 
   @Autowired
   UserService userService;
-
 
   @GetMapping
   @PreAuthorize("hasAnyAuthority('*::*::*', 'API::*::VIEW', 'API::USERS::VIEW')")
