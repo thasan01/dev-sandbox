@@ -42,4 +42,9 @@ public class User {
   @JoinTable(name = "app_user_roles", joinColumns = @JoinColumn(name = "user_id"),
       inverseJoinColumns = @JoinColumn(name = "role_id"))
   List<Role> roles;
+
+  @ManyToMany(cascade = {CascadeType.ALL})
+  @JoinTable(name = "app_user_permissions", joinColumns = @JoinColumn(name = "user_id"),
+      inverseJoinColumns = @JoinColumn(name = "permission_id"))
+  List<Permission> directPermissions;
 }

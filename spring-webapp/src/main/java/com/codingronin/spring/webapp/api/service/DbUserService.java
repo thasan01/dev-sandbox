@@ -24,7 +24,10 @@ import com.codingronin.spring.webapp.api.model.http.v1.CreateUser;
 import com.codingronin.spring.webapp.api.model.http.v1.UserAttributes;
 import com.codingronin.spring.webapp.api.model.v1.AuthProfile;
 import com.codingronin.spring.webapp.api.model.v1.EntitlementMembership;
+import com.codingronin.spring.webapp.api.model.v1.EntitlementMembership.Action;
+import com.codingronin.spring.webapp.api.model.v1.EntitlementMembership.Type;
 import com.codingronin.spring.webapp.api.model.v1.InternalBasicAuthProfile;
+import com.codingronin.spring.webapp.api.model.v1.Permission;
 import com.codingronin.spring.webapp.api.model.v1.Role;
 import com.codingronin.spring.webapp.api.model.v1.User;
 import com.codingronin.spring.webapp.api.repository.UserRepository;
@@ -39,6 +42,9 @@ public class DbUserService implements UserService {
 
   @Autowired
   RoleService roleService;
+
+  @Autowired
+  PermissionService permissionService;
 
   @Autowired
   PasswordEncoder passwordEncoder;
@@ -154,6 +160,17 @@ public class DbUserService implements UserService {
   public User updateEntitlementMemberships(User user,
       List<EntitlementMembership> entitlementMemberships) {
 
+    updateUserRoles(user, entitlementMemberships.stream()
+        .filter(elem -> Type.ROLE.equals(elem.getType())).collect(Collectors.toList()));
+
+    updateUserPermissions(user, entitlementMemberships.stream()
+        .filter(elem -> Type.PERMISSION.equals(elem.getType())).collect(Collectors.toList()));
+
+    userRepo.save(user);
+    return user;
+  }
+
+  void updateUserRoles(User user, List<EntitlementMembership> roleMemberships) {
     List<Role> userRoles = user.getRoles();
 
     if (userRoles == null)
@@ -162,20 +179,15 @@ public class DbUserService implements UserService {
     Set<String> existingRoleNames =
         userRoles.stream().map(Role::getName).collect(Collectors.toSet());
 
-    List<EntitlementMembership> addMemberships = nullSafe(entitlementMemberships).stream()
-        .filter(elem -> EntitlementMembership.Action.ADD.equals(elem.getAction()))
-        .collect(Collectors.toList());
+    List<EntitlementMembership> addMemberships = nullSafe(roleMemberships).stream()
+        .filter(elem -> Action.ADD.equals(elem.getAction())).collect(Collectors.toList());
 
-    Set<String> removeMemberships = nullSafe(entitlementMemberships).stream()
-        .filter(elem -> EntitlementMembership.Action.REMOVE.equals(elem.getAction()))
-        .map(EntitlementMembership::getName).collect(Collectors.toSet());
-
-    log.debug("Removing roles from user: {}. roles: {}", user.getUserName(), removeMemberships);
+    Set<String> removeMemberships =
+        nullSafe(roleMemberships).stream().filter(elem -> Action.REMOVE.equals(elem.getAction()))
+            .map(EntitlementMembership::getName).collect(Collectors.toSet());
 
     userRoles = userRoles.stream().filter(elem -> !removeMemberships.contains(elem.getName()))
         .collect(Collectors.toList());
-
-    log.debug("userRoles after removal. userName: {}. roles: {}", user.getUserName(), userRoles);
 
     for (EntitlementMembership membership : addMemberships) {
       String newRoleName = membership.getName();
@@ -186,8 +198,36 @@ public class DbUserService implements UserService {
     }
 
     user.setRoles(userRoles);
-    userRepo.save(user);
-    return user;
+  }
+
+  void updateUserPermissions(User user, List<EntitlementMembership> permissionMemberships) {
+    List<Permission> userPermissions = user.getDirectPermissions();
+
+    if (userPermissions == null)
+      userPermissions = new ArrayList<>();
+
+    Set<String> existingPermissionNames =
+        userPermissions.stream().map(Permission::getName).collect(Collectors.toSet());
+
+    List<EntitlementMembership> addMemberships = nullSafe(permissionMemberships).stream()
+        .filter(elem -> Action.ADD.equals(elem.getAction())).collect(Collectors.toList());
+
+    Set<String> removeMemberships = nullSafe(permissionMemberships).stream()
+        .filter(elem -> Action.REMOVE.equals(elem.getAction())).map(EntitlementMembership::getName)
+        .collect(Collectors.toSet());
+
+    userPermissions = userPermissions.stream()
+        .filter(elem -> !removeMemberships.contains(elem.getName())).collect(Collectors.toList());
+
+    for (EntitlementMembership membership : addMemberships) {
+      String newRoleName = membership.getName();
+      if (!existingPermissionNames.contains(newRoleName)) {
+        Permission permission = permissionService.getPermission(membership.getName());
+        userPermissions.add(permission);
+      }
+    }
+
+    user.setDirectPermissions(userPermissions);
   }
 
 

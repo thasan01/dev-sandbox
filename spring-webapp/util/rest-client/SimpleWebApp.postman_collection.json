@@ -56,6 +56,41 @@
 							"response": []
 						},
 						{
+							"name": "Ping HealthCheck",
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "username",
+											"value": "user3",
+											"type": "string"
+										},
+										{
+											"key": "password",
+											"value": "abc123",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{API_BASE_URL}}/rest/v1/HealthCheck/ping",
+									"host": [
+										"{{API_BASE_URL}}"
+									],
+									"path": [
+										"rest",
+										"v1",
+										"HealthCheck",
+										"ping"
+									]
+								}
+							},
+							"response": []
+						},
+						{
 							"name": "Get Single User",
 							"request": {
 								"auth": {
@@ -135,6 +170,85 @@
 							"response": []
 						},
 						{
+							"name": "Get Permissions",
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "username",
+											"value": "user3",
+											"type": "string"
+										},
+										{
+											"key": "password",
+											"value": "abc123",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{API_BASE_URL}}/rest/v1/Roles?page=0&size=50",
+									"host": [
+										"{{API_BASE_URL}}"
+									],
+									"path": [
+										"rest",
+										"v1",
+										"Roles"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "0"
+										},
+										{
+											"key": "size",
+											"value": "50"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Single Permission",
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "username",
+											"value": "user3",
+											"type": "string"
+										},
+										{
+											"key": "password",
+											"value": "abc123",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{API_BASE_URL}}/rest/v1/Permissions/API::*::CREATE",
+									"host": [
+										"{{API_BASE_URL}}"
+									],
+									"path": [
+										"rest",
+										"v1",
+										"Permissions",
+										"API::*::CREATE"
+									]
+								}
+							},
+							"response": []
+						},
+						{
 							"name": "Get Single Role",
 							"request": {
 								"auth": {
@@ -191,7 +305,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"memberships\" : [\r\n        {\r\n            \"action\" : \"ADD\",\r\n            \"name\" : \"ADMIN\"\r\n        }\r\n    ]\r\n}",
+									"raw": "{\r\n    \"memberships\" : [\r\n        {\r\n            \"action\" : \"ADD\",\r\n            \"type\" : \"ROLE\",\r\n            \"name\" : \"ADMIN\"\r\n        },\r\n        {\r\n            \"action\" : \"ADD\",\r\n            \"type\" : \"PERMISSION\",\r\n            \"name\" : \"API::*::CREATE\"\r\n        }\r\n    ]\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"

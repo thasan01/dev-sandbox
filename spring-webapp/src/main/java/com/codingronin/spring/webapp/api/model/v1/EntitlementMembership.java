@@ -15,8 +15,15 @@ public class EntitlementMembership {
     ADD, REMOVE
   }
 
+  public enum Type {
+    PERMISSION, ROLE
+  }
+
   @NotNull
   Action action;
+
+  @NotNull
+  Type type;
 
   @NotNull
   @NotEmpty
