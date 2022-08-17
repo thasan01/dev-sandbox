@@ -305,7 +305,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\r\n    \"memberships\" : [\r\n        {\r\n            \"action\" : \"ADD\",\r\n            \"type\" : \"ROLE\",\r\n            \"name\" : \"ADMIN\"\r\n        },\r\n        {\r\n            \"action\" : \"ADD\",\r\n            \"type\" : \"PERMISSION\",\r\n            \"name\" : \"API::*::CREATE\"\r\n        }\r\n    ]\r\n}",
+									"raw": "{\r\n    \"memberships\" : [\r\n        {\r\n            \"action\" : \"ADD\",\r\n            \"type\" : \"ROLE\",\r\n            \"values\" : [\"ADMIN\"]\r\n        },\r\n        {\r\n            \"action\" : \"ADD\",\r\n            \"type\" : \"PERMISSION\",\r\n            \"values\" : [\"API::*::CREATE\"]\r\n        }\r\n    ]\r\n}",
 									"options": {
 										"raw": {
 											"language": "json"

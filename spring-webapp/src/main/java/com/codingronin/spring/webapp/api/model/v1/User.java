@@ -20,6 +20,11 @@ import lombok.Setter;
 @NoArgsConstructor
 @Entity(name = "app_user")
 public class User {
+
+  public enum Status {
+    ACTIVE, INACTIVE
+  }
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   int id;
@@ -30,6 +35,7 @@ public class User {
   @Column(unique = true)
   String email;
 
+  Status status;
 
   @OneToMany(cascade = {CascadeType.ALL}) // Cascade.ALL is used to save child objects as when
                                           // saving the User object.

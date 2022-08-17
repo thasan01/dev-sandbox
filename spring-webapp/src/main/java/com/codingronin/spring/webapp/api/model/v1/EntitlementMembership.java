@@ -1,5 +1,6 @@
 package com.codingronin.spring.webapp.api.model.v1;
 
+import java.util.List;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import lombok.Getter;
@@ -27,5 +28,5 @@ public class EntitlementMembership {
 
   @NotNull
   @NotEmpty
-  String name;
+  List<String> values;
 }

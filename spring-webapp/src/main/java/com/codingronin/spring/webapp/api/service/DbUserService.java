@@ -66,6 +66,8 @@ public class DbUserService implements UserService {
       User user = new User();
       user.setUserName(elem.getUserName());
       user.setEmail(elem.getEmail());
+      user.setStatus(User.Status.ACTIVE);
+
 
       String inputPass = elem.getPassword();
       if (inputPass != null) {
@@ -121,7 +123,7 @@ public class DbUserService implements UserService {
   }
 
 
-  public User updateAttributesHelper(String jobId, String userName, UserAttributes userAttributes,
+  User updateAttributesHelper(String jobId, String userName, UserAttributes userAttributes,
       List<FieldError> fieldErrors) {
 
     User user = userRepo.findByUserName(userName);
@@ -184,16 +186,17 @@ public class DbUserService implements UserService {
 
     Set<String> removeMemberships =
         nullSafe(roleMemberships).stream().filter(elem -> Action.REMOVE.equals(elem.getAction()))
-            .map(EntitlementMembership::getName).collect(Collectors.toSet());
+            .flatMap(elem -> elem.getValues().stream()).collect(Collectors.toSet());
 
     userRoles = userRoles.stream().filter(elem -> !removeMemberships.contains(elem.getName()))
         .collect(Collectors.toList());
 
     for (EntitlementMembership membership : addMemberships) {
-      String newRoleName = membership.getName();
-      if (!existingRoleNames.contains(newRoleName)) {
-        Role role = roleService.getRole(membership.getName());
-        userRoles.add(role);
+      for (String newRoleName : membership.getValues()) {
+        if (!existingRoleNames.contains(newRoleName)) {
+          Role role = roleService.getRole(newRoleName);
+          userRoles.add(role);
+        }
       }
     }
 
@@ -213,17 +216,18 @@ public class DbUserService implements UserService {
         .filter(elem -> Action.ADD.equals(elem.getAction())).collect(Collectors.toList());
 
     Set<String> removeMemberships = nullSafe(permissionMemberships).stream()
-        .filter(elem -> Action.REMOVE.equals(elem.getAction())).map(EntitlementMembership::getName)
-        .collect(Collectors.toSet());
+        .filter(elem -> Action.REMOVE.equals(elem.getAction()))
+        .flatMap(elem -> elem.getValues().stream()).collect(Collectors.toSet());
 
     userPermissions = userPermissions.stream()
         .filter(elem -> !removeMemberships.contains(elem.getName())).collect(Collectors.toList());
 
     for (EntitlementMembership membership : addMemberships) {
-      String newRoleName = membership.getName();
-      if (!existingPermissionNames.contains(newRoleName)) {
-        Permission permission = permissionService.getPermission(membership.getName());
-        userPermissions.add(permission);
+      for (String newPermName : membership.getValues()) {
+        if (!existingPermissionNames.contains(newPermName)) {
+          Permission permission = permissionService.getPermission(newPermName);
+          userPermissions.add(permission);
+        }
       }
     }
 
