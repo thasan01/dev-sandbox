@@ -4,7 +4,6 @@ A simple web application build with SpringBoot framework.
 ## Features
 1. Model View Controller (MVC) Pattern
 2. REST API layer
-    * Eight spaces
     * JPA / Hiberbate based CRUD operations
     * Basic Auth
     * Secured with Role Based Access Controls (RBAC) and Spring Security 
