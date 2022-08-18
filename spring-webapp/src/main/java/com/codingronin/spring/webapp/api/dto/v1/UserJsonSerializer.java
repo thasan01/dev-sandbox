@@ -10,6 +10,7 @@ import org.apache.commons.beanutils.PropertyUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.jackson.JsonComponent;
+import com.codingronin.spring.webapp.api.model.v1.Permission;
 import com.codingronin.spring.webapp.api.model.v1.Role;
 import com.codingronin.spring.webapp.api.model.v1.User;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -26,7 +27,7 @@ public class UserJsonSerializer extends JsonSerializer<User> {
       throws IOException {
 
     Set<String> ignore = new HashSet<>();
-    ignore.addAll(Arrays.asList("authProfiles"));
+    ignore.addAll(Arrays.asList("authProfiles", "roles", "directPermissions"));
 
     gen.writeStartObject();
 
@@ -39,15 +40,16 @@ public class UserJsonSerializer extends JsonSerializer<User> {
         continue;
 
       try {
-        if ("roles".equals(fieldName))
-          processRoles(user, gen, fieldName);
-        else
-          gen.writeObjectField(fieldName, PropertyUtils.getSimpleProperty(user, fieldName));
-
+        gen.writeObjectField(fieldName, PropertyUtils.getSimpleProperty(user, fieldName));
       } catch (Exception ex) {
         log.error("Encountered an error while processing field {}.", fieldName, ex);
       }
     }
+
+    gen.writeObjectFieldStart("userEntitlements");
+    processRoles(user, gen, "roles");
+    processPermissions(user, gen, "directPermissions");
+    gen.writeEndObject();
 
     gen.writeEndObject();
   }
@@ -58,6 +60,14 @@ public class UserJsonSerializer extends JsonSerializer<User> {
     for (Role role : nullSafe(user.getRoles())) {
       log.debug("Processing role[{}] for user {}", role.getName(), user.getUserName());
       gen.writeString(role.getName());
+    }
+    gen.writeEndArray();
+  }
+
+  void processPermissions(User user, JsonGenerator gen, String fieldName) throws IOException {
+    gen.writeArrayFieldStart(fieldName);
+    for (Permission permission : nullSafe(user.getDirectPermissions())) {
+      gen.writeString(permission.getName());
     }
     gen.writeEndArray();
   }

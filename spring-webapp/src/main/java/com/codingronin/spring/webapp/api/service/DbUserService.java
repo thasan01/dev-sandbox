@@ -1,12 +1,14 @@
 package com.codingronin.spring.webapp.api.service;
 
+import static com.codingronin.spring.webapp.api.util.CollectionsUtil.nullSafe;
 import static com.codingronin.spring.webapp.api.util.ObjectsUtil.nullSafeToString;
+import static com.codingronin.spring.webapp.api.util.ObjectsUtil.toList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +23,12 @@ import com.codingronin.spring.webapp.api.errors.ResourceNotFoundException;
 import com.codingronin.spring.webapp.api.model.http.v1.CreateUser;
 import com.codingronin.spring.webapp.api.model.http.v1.UserAttributes;
 import com.codingronin.spring.webapp.api.model.v1.AuthProfile;
+import com.codingronin.spring.webapp.api.model.v1.EntitlementMembership;
+import com.codingronin.spring.webapp.api.model.v1.EntitlementMembership.Action;
+import com.codingronin.spring.webapp.api.model.v1.EntitlementMembership.Type;
 import com.codingronin.spring.webapp.api.model.v1.InternalBasicAuthProfile;
+import com.codingronin.spring.webapp.api.model.v1.Permission;
+import com.codingronin.spring.webapp.api.model.v1.Role;
 import com.codingronin.spring.webapp.api.model.v1.User;
 import com.codingronin.spring.webapp.api.repository.UserRepository;
 
@@ -32,6 +39,12 @@ public class DbUserService implements UserService {
 
   @Autowired
   UserRepository userRepo;
+
+  @Autowired
+  RoleService roleService;
+
+  @Autowired
+  PermissionService permissionService;
 
   @Autowired
   PasswordEncoder passwordEncoder;
@@ -53,6 +66,8 @@ public class DbUserService implements UserService {
       User user = new User();
       user.setUserName(elem.getUserName());
       user.setEmail(elem.getEmail());
+      user.setStatus(User.Status.ACTIVE);
+
 
       String inputPass = elem.getPassword();
       if (inputPass != null) {
@@ -108,7 +123,7 @@ public class DbUserService implements UserService {
   }
 
 
-  public User updateAttributesHelper(String jobId, String userName, UserAttributes userAttributes,
+  User updateAttributesHelper(String jobId, String userName, UserAttributes userAttributes,
       List<FieldError> fieldErrors) {
 
     User user = userRepo.findByUserName(userName);
@@ -131,9 +146,93 @@ public class DbUserService implements UserService {
     return user;
   }
 
+  @Override
+  public User updateEntitlementMemberships(String userName,
+      List<EntitlementMembership> entitlementMemberships) {
 
-  <T> List<T> toList(Iterable<T> iter) {
-    return StreamSupport.stream(iter.spliterator(), false).collect(Collectors.toList());
+    User user = getUser(userName);
+
+    if (user == null)
+      return null;
+
+    return updateEntitlementMemberships(user, entitlementMemberships);
   }
+
+  @Override
+  public User updateEntitlementMemberships(User user,
+      List<EntitlementMembership> entitlementMemberships) {
+
+    updateUserRoles(user, entitlementMemberships.stream()
+        .filter(elem -> Type.ROLE.equals(elem.getType())).collect(Collectors.toList()));
+
+    updateUserPermissions(user, entitlementMemberships.stream()
+        .filter(elem -> Type.PERMISSION.equals(elem.getType())).collect(Collectors.toList()));
+
+    userRepo.save(user);
+    return user;
+  }
+
+  void updateUserRoles(User user, List<EntitlementMembership> roleMemberships) {
+    List<Role> userRoles = user.getRoles();
+
+    if (userRoles == null)
+      userRoles = new ArrayList<>();
+
+    Set<String> existingRoleNames =
+        userRoles.stream().map(Role::getName).collect(Collectors.toSet());
+
+    List<EntitlementMembership> addMemberships = nullSafe(roleMemberships).stream()
+        .filter(elem -> Action.ADD.equals(elem.getAction())).collect(Collectors.toList());
+
+    Set<String> removeMemberships =
+        nullSafe(roleMemberships).stream().filter(elem -> Action.REMOVE.equals(elem.getAction()))
+            .flatMap(elem -> elem.getValues().stream()).collect(Collectors.toSet());
+
+    userRoles = userRoles.stream().filter(elem -> !removeMemberships.contains(elem.getName()))
+        .collect(Collectors.toList());
+
+    for (EntitlementMembership membership : addMemberships) {
+      for (String newRoleName : membership.getValues()) {
+        if (!existingRoleNames.contains(newRoleName)) {
+          Role role = roleService.getRole(newRoleName);
+          userRoles.add(role);
+        }
+      }
+    }
+
+    user.setRoles(userRoles);
+  }
+
+  void updateUserPermissions(User user, List<EntitlementMembership> permissionMemberships) {
+    List<Permission> userPermissions = user.getDirectPermissions();
+
+    if (userPermissions == null)
+      userPermissions = new ArrayList<>();
+
+    Set<String> existingPermissionNames =
+        userPermissions.stream().map(Permission::getName).collect(Collectors.toSet());
+
+    List<EntitlementMembership> addMemberships = nullSafe(permissionMemberships).stream()
+        .filter(elem -> Action.ADD.equals(elem.getAction())).collect(Collectors.toList());
+
+    Set<String> removeMemberships = nullSafe(permissionMemberships).stream()
+        .filter(elem -> Action.REMOVE.equals(elem.getAction()))
+        .flatMap(elem -> elem.getValues().stream()).collect(Collectors.toSet());
+
+    userPermissions = userPermissions.stream()
+        .filter(elem -> !removeMemberships.contains(elem.getName())).collect(Collectors.toList());
+
+    for (EntitlementMembership membership : addMemberships) {
+      for (String newPermName : membership.getValues()) {
+        if (!existingPermissionNames.contains(newPermName)) {
+          Permission permission = permissionService.getPermission(newPermName);
+          userPermissions.add(permission);
+        }
+      }
+    }
+
+    user.setDirectPermissions(userPermissions);
+  }
+
 
 }

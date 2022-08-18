@@ -13,6 +13,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,23 +26,24 @@ import com.codingronin.spring.webapp.api.model.http.v1.CreateUserRequest;
 import com.codingronin.spring.webapp.api.model.http.v1.CreateUserResponse;
 import com.codingronin.spring.webapp.api.model.http.v1.DeleteUserRequest;
 import com.codingronin.spring.webapp.api.model.http.v1.DeleteUserResponse;
+import com.codingronin.spring.webapp.api.model.http.v1.GetSingleUserResponse;
 import com.codingronin.spring.webapp.api.model.http.v1.GetUsersResponse;
 import com.codingronin.spring.webapp.api.model.http.v1.UpdateUserAttributesRequest;
 import com.codingronin.spring.webapp.api.model.http.v1.UpdateUserAttributesResponse;
+import com.codingronin.spring.webapp.api.model.http.v1.UpdateUserMembershipsRequest;
+import com.codingronin.spring.webapp.api.model.http.v1.UpdateUserMembershipsResponse;
 import com.codingronin.spring.webapp.api.model.v1.User;
 import com.codingronin.spring.webapp.api.service.UserService;
 
-@RestController("ApiControllerV1")
+@RestController("UsersApiControllerV1")
 @RequestMapping("/api/rest/v1/Users")
 @Validated
-public class UsersApiController implements RestApiController {
+public class UsersApiController extends RestApiController {
 
   static Logger log = LoggerFactory.getLogger(UsersApiController.class);
-  static final String DEFAULT_GET_SIZE = "50";
 
   @Autowired
   UserService userService;
-
 
   @GetMapping
   @PreAuthorize("hasAnyAuthority('*::*::*', 'API::*::VIEW', 'API::USERS::VIEW')")
@@ -52,6 +54,15 @@ public class UsersApiController implements RestApiController {
     log.debug("Getting users with startIndex:{}, count:{}", page, size);
     GetUsersResponse resp = new GetUsersResponse();
     resp.setUsers(userService.getUsers(page, size));
+    return ResponseEntity.ok(resp);
+  }
+
+  @GetMapping("/{userName}")
+  @PreAuthorize("hasAnyAuthority('*::*::*', 'API::*::VIEW', 'API::USERS::VIEW')")
+  public ResponseEntity<GetSingleUserResponse> getSingle(
+      @PathVariable(value = "userName") String userName) {
+    GetSingleUserResponse resp = new GetSingleUserResponse();
+    resp.setUser(userService.getUser(userName));
     return ResponseEntity.ok(resp);
   }
 
@@ -83,5 +94,19 @@ public class UsersApiController implements RestApiController {
     resp.setUsers(users);
     return ResponseEntity.ok(resp);
   }
+
+  @PostMapping("/{userName}/entitlementMemberships")
+  @PreAuthorize("hasAnyAuthority('*::*::*', 'API::*::UPDATE', 'API::USERS::UPDATE')")
+  public ResponseEntity<UpdateUserMembershipsResponse> updateMemberships(
+      @RequestAttribute(name = CLIENT_RESPONSE_ID_KEY) String responseId,
+      @PathVariable(value = "userName") String userName,
+      @Valid @RequestBody UpdateUserMembershipsRequest payload) {
+
+    User user = userService.updateEntitlementMemberships(userName, payload.getMemberships());
+    UpdateUserMembershipsResponse resp = new UpdateUserMembershipsResponse();
+    resp.setUser(user);
+    return ResponseEntity.ok(resp);
+  }
+
 
 }
