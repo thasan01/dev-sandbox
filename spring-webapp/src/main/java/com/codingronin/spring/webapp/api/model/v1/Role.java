@@ -1,7 +1,6 @@
 package com.codingronin.spring.webapp.api.model.v1;
 
 import java.util.List;
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -29,12 +28,12 @@ public class Role {
   @NotEmpty
   String name;
 
-  @ManyToMany(cascade = {CascadeType.ALL})
+  @ManyToMany
   @JoinTable(joinColumns = @JoinColumn(name = "role_id"),
       inverseJoinColumns = @JoinColumn(name = "permission_id"))
   List<Permission> permissions;
 
-  @ManyToMany(cascade = {CascadeType.ALL})
+  @ManyToMany
   @JoinTable(name = "app_user_roles", joinColumns = @JoinColumn(name = "role_id"),
       inverseJoinColumns = @JoinColumn(name = "user_id"))
   List<User> members;
