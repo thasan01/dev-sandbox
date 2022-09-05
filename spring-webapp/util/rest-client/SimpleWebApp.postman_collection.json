@@ -1,0 +1,435 @@
+{
+	"info": {
+		"_postman_id": "b9290d0d-8fd0-4c96-81b4-b6a41e6b48a8",
+		"name": "SimpleWebApp",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "api",
+			"item": [
+				{
+					"name": "v1",
+					"item": [
+						{
+							"name": "Get Users",
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "username",
+											"value": "user3",
+											"type": "string"
+										},
+										{
+											"key": "password",
+											"value": "abc123",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{API_BASE_URL}}/rest/v1/Users?page=0&size=50",
+									"host": [
+										"{{API_BASE_URL}}"
+									],
+									"path": [
+										"rest",
+										"v1",
+										"Users"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "0"
+										},
+										{
+											"key": "size",
+											"value": "50"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Ping HealthCheck",
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "username",
+											"value": "user3",
+											"type": "string"
+										},
+										{
+											"key": "password",
+											"value": "abc123",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{API_BASE_URL}}/rest/v1/HealthCheck/ping",
+									"host": [
+										"{{API_BASE_URL}}"
+									],
+									"path": [
+										"rest",
+										"v1",
+										"HealthCheck",
+										"ping"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Single User",
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "username",
+											"value": "user3",
+											"type": "string"
+										},
+										{
+											"key": "password",
+											"value": "abc123",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{API_BASE_URL}}/rest/v1/Users/user2",
+									"host": [
+										"{{API_BASE_URL}}"
+									],
+									"path": [
+										"rest",
+										"v1",
+										"Users",
+										"user2"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Roles",
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "username",
+											"value": "user3",
+											"type": "string"
+										},
+										{
+											"key": "password",
+											"value": "abc123",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{API_BASE_URL}}/rest/v1/Roles?page=0&size=50",
+									"host": [
+										"{{API_BASE_URL}}"
+									],
+									"path": [
+										"rest",
+										"v1",
+										"Roles"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "0"
+										},
+										{
+											"key": "size",
+											"value": "50"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Permissions",
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "username",
+											"value": "user3",
+											"type": "string"
+										},
+										{
+											"key": "password",
+											"value": "abc123",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{API_BASE_URL}}/rest/v1/Roles?page=0&size=50",
+									"host": [
+										"{{API_BASE_URL}}"
+									],
+									"path": [
+										"rest",
+										"v1",
+										"Roles"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "0"
+										},
+										{
+											"key": "size",
+											"value": "50"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Single Permission",
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "username",
+											"value": "user3",
+											"type": "string"
+										},
+										{
+											"key": "password",
+											"value": "abc123",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{API_BASE_URL}}/rest/v1/Permissions/API::*::CREATE",
+									"host": [
+										"{{API_BASE_URL}}"
+									],
+									"path": [
+										"rest",
+										"v1",
+										"Permissions",
+										"API::*::CREATE"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Single Role",
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "username",
+											"value": "user3",
+											"type": "string"
+										},
+										{
+											"key": "password",
+											"value": "abc123",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{API_BASE_URL}}/rest/v1/Roles/GUEST",
+									"host": [
+										"{{API_BASE_URL}}"
+									],
+									"path": [
+										"rest",
+										"v1",
+										"Roles",
+										"GUEST"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update User Entitlement Memberships",
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "username",
+											"value": "user1",
+											"type": "string"
+										},
+										{
+											"key": "password",
+											"value": "abc123",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"memberships\" : [\r\n        {\r\n            \"action\" : \"ADD\",\r\n            \"type\" : \"ROLE\",\r\n            \"values\" : [\"ADMIN\"]\r\n        },\r\n        {\r\n            \"action\" : \"ADD\",\r\n            \"type\" : \"PERMISSION\",\r\n            \"values\" : [\"API::*::CREATE\"]\r\n        }\r\n    ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{API_BASE_URL}}/rest/v1/Users/user2/entitlementMemberships",
+									"host": [
+										"{{API_BASE_URL}}"
+									],
+									"path": [
+										"rest",
+										"v1",
+										"Users",
+										"user2",
+										"entitlementMemberships"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create Users Copy",
+							"request": {
+								"auth": {
+									"type": "basic",
+									"basic": [
+										{
+											"key": "username",
+											"value": "user1",
+											"type": "string"
+										},
+										{
+											"key": "password",
+											"value": "abc123",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"users\" : [\r\n        {\r\n            \"userName\" : \"john.doe\",\r\n            \"email\" : \"john.doe@test.com\",\r\n            \"password\" : \"abc123\"\r\n        }\r\n    ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{API_BASE_URL}}/rest/v1/Users",
+									"host": [
+										"{{API_BASE_URL}}"
+									],
+									"path": [
+										"rest",
+										"v1",
+										"Users"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Users",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"userNames\": [\r\n        \"user10\",\r\n        \"user9\"\r\n    ]\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{API_BASE_URL}}/rest/v1/Users",
+									"host": [
+										"{{API_BASE_URL}}"
+									],
+									"path": [
+										"rest",
+										"v1",
+										"Users"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Users Attributes",
+							"request": {
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"users\": {\r\n        \"user1\": {\r\n            \"email\": \"new.value@test.com\"\r\n        }\r\n    }\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{API_BASE_URL}}/rest/v1/Users",
+									"host": [
+										"{{API_BASE_URL}}"
+									],
+									"path": [
+										"rest",
+										"v1",
+										"Users"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		}
+	]
+}
