@@ -13,6 +13,7 @@
         <module>crypto-keystore</module>
         <module>google-drive-api</module>
 		<module>spring-webapp</module>
+		<module>selenium-webscrapper</module>
     </modules>
 
     <dependencyManagement>
