@@ -24,21 +24,21 @@ public class HelloWorldLambdaHandler implements RequestHandler<Map<String, Strin
 
     LambdaLogger logger = context.getLogger();
     String response = "200 OK";
+
     // log execution details
     logger.log("ENVIRONMENT VARIABLES: " + gson.toJson(System.getenv()));
     logger.log("CONTEXT: " + gson.toJson(context));
+
     // process event
     logger.log("EVENT: " + gson.toJson(event));
     logger.log("EVENT TYPE: " + event.getClass().toString());
 
     launchEc2(logger);
-
     return response;
   }
 
 
   void launchEc2(LambdaLogger log) {
-
     log.log("Getting Ec2Cleint.");
     Region region = Region.US_EAST_1;
 
@@ -59,7 +59,6 @@ public class HelloWorldLambdaHandler implements RequestHandler<Map<String, Strin
 
     if (userData != null)
       specBuilder = specBuilder.userData(userData);
-
 
     return RequestSpotInstancesRequest.builder()//
         .type(SpotInstanceType.PERSISTENT)//

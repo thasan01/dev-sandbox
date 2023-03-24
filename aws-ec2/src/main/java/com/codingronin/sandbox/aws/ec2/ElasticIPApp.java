@@ -28,9 +28,6 @@ public class ElasticIPApp {
     tagResources(ec2, Arrays.asList(alloc), tags);
     System.out.println("tagged ip address");
 
-
-    // Address.builder().sdkFields().stream().map(SdkField::locationName).forEach(System.out::println);
-
   }
 
   String createElasticIpAddress(Ec2Client ec2) {
