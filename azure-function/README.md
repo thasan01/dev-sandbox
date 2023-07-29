@@ -1,5 +1,5 @@
 
-## Prerequisite
+## Prerequisites
 Following software must be installed:
  - JDK 17 or higher [Link](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html)
  - Apache Maven  3.8.5 or higher [Link]()
@@ -8,7 +8,9 @@ Following software must be installed:
 
 Check [Appendix: Check Requirements](#check-requirements) section on how to verify versions.
 
-## Run Project
+## Run Project Manually
+
+
 To run the project locally, run the following command:
 `mvn clean package azure-functions:run`
 
