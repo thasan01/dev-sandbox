@@ -8,21 +8,65 @@ Following software must be installed:
 
 Check [Appendix: Check Requirements](#check-requirements) section on how to verify versions.
 
+## DevOps Pipeline Setup
+Follow the steps outlined [here](tutorial/devops-setup.md) to setup DevOps Pipeline.
+
+
 ## Run Project Manually
+This project is intended to be managed through the Azure DevOps Pipelines. However, this section describes how to build and deploy it manually. 
+
+In order to support multiple environments, Azure details are not hardcoded into the `pom.xml`. Instead, they are passed as command line arguments when calling the Maven commands. Helper scripts are created to stored in the `bin` folder to simplify the deployment process. These scripts should be executed from the project root folder.
+
+First update the `.env` file and with Azure specific details.
+
+### Build the Project
+
+To build the project:
+
+```
+./bin/build.sh
+```
+
+To do a clean build:
+
+```
+./bin/build.sh clean
+```
 
 
-To run the project locally, run the following command:
-`mvn clean package azure-functions:run`
+### Run the Project
 
+To run the project locally (via the Function Core Tool)
 
-## Deploy Project
-First login to Azure CLI:
+```
+./bin/run.sh
+```
 
-`az login`
+To build and run:
 
-Then run:
+```
+./bin/run.sh "clean package"
+```
 
-`mvn azure-functions:deploy`
+### Deploy the Project
+
+First login using Azure CLI
+
+```
+az login
+```
+
+Then deploy the project:
+
+```
+./bin/deploy.sh
+```
+
+To build and deploy:
+
+```
+./bin/deploy.sh "clean package"
+```
 
 ## Appendix
 

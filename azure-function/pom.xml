@@ -10,14 +10,16 @@
     <name>Azure Java Functions</name>
 
     <properties>
+    	<!-- Following variables must be passed in command line:
+	        azure.functions.appName
+	        azure.functions.resourceGroup
+	        azure.functions.appServicePlanName
+			azure.functions.region    	
+    	-->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
         <azure.functions.maven.plugin.version>1.24.0</azure.functions.maven.plugin.version>
         <azure.functions.java.library.version>2.2.0</azure.functions.java.library.version>
-        <azure.functions.appName>azure-function-20230509200326004</azure.functions.appName>
-        <azure.functions.resourceGroup>java-functions-group</azure.functions.resourceGroup>
-        <azure.functions.appServicePlanName>java-functions-app-service-plan</azure.functions.appServicePlanName>
-		<azure.functions.region>eastus</azure.functions.region>
     </properties>
 
     <dependencies>
