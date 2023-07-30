@@ -9,17 +9,20 @@
 
     <name>Azure Java Functions</name>
 
-    <properties>
-    	<!-- Following variables must be passed in command line:
-	        azure.functions.appName
-	        azure.functions.resourceGroup
-	        azure.functions.appServicePlanName
-			azure.functions.region    	
-    	-->
+    <!-- Properties passed from command line override the ones defined in this block -->
+   	<!-- Following variables must be passed in command line:    		
+        azure.functions.appName
+        azure.functions.resourceGroup
+        azure.functions.appServicePlanName
+		azure.functions.region    	
+   	-->
+    <properties>    
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
         <azure.functions.maven.plugin.version>1.24.0</azure.functions.maven.plugin.version>
         <azure.functions.java.library.version>2.2.0</azure.functions.java.library.version>
+        <azure.functions.runtime.java.version>8</azure.functions.runtime.java.version>
+        <azure.functions.runtime.os>linux</azure.functions.runtime.os>
     </properties>
 
     <dependencies>
@@ -78,8 +81,8 @@
                     <!-- refers https://github.com/microsoft/azure-maven-plugins/wiki/Azure-Functions:-Configuration-Details for all valid configurations for application insights-->
                     <runtime>
                         <!-- runtime os, could be windows, linux or docker-->
-                        <os>windows</os>
-                        <javaVersion>8</javaVersion>
+                        <os>${azure.functions.runtime.os}</os>
+                        <javaVersion>${azure.functions.runtime.java.version}</javaVersion>
                     </runtime>
                     <appSettings>
                         <property>

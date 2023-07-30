@@ -16,10 +16,13 @@ import com.microsoft.azure.functions.annotation.HttpTrigger;
 public class Function {
 
   @FunctionName("Ping")
-  public HttpResponseMessage ping(
+  public HttpResponseMessage ping(//
       @HttpTrigger(name = "req", methods = {HttpMethod.GET, HttpMethod.POST},
-          authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<String>> request,
-      final ExecutionContext context) {
+          authLevel = AuthorizationLevel.FUNCTION) //
+      HttpRequestMessage<Optional<String>> request, //
+      final ExecutionContext context//
+  ) //
+  {
     context.getLogger().info("Java HTTP trigger processed a request.");
 
     // Parse query parameter
