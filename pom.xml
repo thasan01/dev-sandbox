@@ -10,8 +10,10 @@
     <packaging>pom</packaging>
 
     <modules>
+		<module>aws-api</module>
 		<module>aws-ec2</module>
 		<module>aws-lambda</module>
+		<module>azure-function</module>
         <module>crypto-keystore</module>
         <module>google-drive-api</module>
 		<module>spring-webapp</module>
