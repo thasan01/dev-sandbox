@@ -15,7 +15,6 @@ pool:
 steps:
   - task: Maven@3
     inputs:
-      mavenPomFile: "pom.xml"
       mavenPomFile: '$(system.defaultWorkingDirectory)/azure-function/pom.xml'
       mavenOptions: "-Xmx3072m -Dazure.functions.appName=$(azAppName) -Dazure.functions.resourceGroup=$(azResourceGroup) -Dazure.functions.appServicePlanName=$(azAppServicePlanName) -Dazure.functions.region=$(azRegion)"
       javaHomeOption: "JDKVersion"
