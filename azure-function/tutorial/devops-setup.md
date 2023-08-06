@@ -1,12 +1,20 @@
 # Setup Azure DevOps
 
+## Table of Content
+
+1. [Prerequisites](#prerequisites)
+2. [Create Service Principal](#create-service-principal)
+3. [Service Connection Setup](#service-connection-setup)
+4. [Repository Setup](#repository-setup)
+5. [Troubleshooting](#troubleshooting)
+
 ## Prerequisites
-* From [Azure Portal](https://portal.azure.com) create an **Azure DevOps Organization**.
+
+- From [Azure Portal](https://portal.azure.com) create an **Azure DevOps Organization**.
 
 ![Create GCP Project](screenshots/setup-devops-001.png)
 
-* Assuming the **DevOps Organization** is Free-Teir, fill out [Azure DevOps Parallelism Request](https://forms.office.com/pages/responsepage.aspx?id=v4j5cvGGr0GRqy180BHbR63mUWPlq7NEsFZhkyH8jChUMlM3QzdDMFZOMkVBWU5BWFM3SDI2QlRBSC4u) form and submit it. It takes a few days to fulfill. 
-
+- Assuming the **DevOps Organization** is Free-Teir, fill out [Azure DevOps Parallelism Request](https://forms.office.com/pages/responsepage.aspx?id=v4j5cvGGr0GRqy180BHbR63mUWPlq7NEsFZhkyH8jChUMlM3QzdDMFZOMkVBWU5BWFM3SDI2QlRBSC4u) form and submit it. It takes a few days to fulfill.
 
 ## Create Service Principal
 
@@ -17,6 +25,7 @@ az ad sp create-for-rbac --name <ACCOUNT_NAME> --role Contributor --scopes /subs
 ```
 
 The output will be the format below. Store it somewhere safe.
+
 ```javascript
 {
   "appId": "abc123-abc123-abc123-abc123-abc123",
@@ -26,8 +35,8 @@ The output will be the format below. Store it somewhere safe.
 }
 ```
 
-
 ## Service Connection Setup
+
 Go to your **DevOps Organization** and select **Project setting** in the bottom.
 
 ![Create GCP Project](screenshots/setup-devops-012.png)
@@ -51,18 +60,19 @@ Select **Service principal (manual)**
 In the **New Azure service connection** page:
 
 Set **Scope level** to **Subscription**
-* Get the values of **Subscription Name**, **Subscription Id***, and **Resource Group** from the Azure Function Overview page from the Azure portal.
-* Get following values from [Create Service Principal](#create-service-principal) section
-  * **appId** as **Service Principal Id**
-  * **password** as **Service principal key**
-  * **tenant** as **Tenant Id**
-* Under **Credential** check the **Service principal key** radio button.
-* Set a service connection name and click **Verify and save**
+
+- Get the values of **Subscription Name**, **Subscription Id\***, and **Resource Group** from the Azure Function Overview page from the Azure portal.
+- Get following values from [Create Service Principal](#create-service-principal) section
+  - **appId** as **Service Principal Id**
+  - **password** as **Service principal key**
+  - **tenant** as **Tenant Id**
+- Under **Credential** check the **Service principal key** radio button.
+- Set a service connection name and click **Verify and save**
 
 ![Create GCP Project](screenshots/setup-devops-017.png)
 
-
 ## Repository Setup
+
 Go to your **DevOps Organization** (Ex: https://dev.azure.com/<org_name>/<projectname>)
 
 Select **Pipelines** on the left
@@ -89,7 +99,7 @@ You will be redirected back to Azure DevOps page. Select a repo from GitHub.
 
 ![Create GCP Project](screenshots/setup-devops-007.png)
 
-Approve and Install the DevOps application in GitHub 
+Approve and Install the DevOps application in GitHub
 
 ![Create GCP Project](screenshots/setup-devops-008.png)
 
@@ -106,3 +116,14 @@ Either commit the new changes (azure-pipelines.yaml) directly to the master bran
 Then click **Save**
 
 ![Create GCP Project](screenshots/setup-devops-011.png)
+
+## Troubleshooting
+
+### :x: Resource Doesn't Exist
+
+> ##[error]Error: Resource '**\***' doesn't exist. Resource should exist before deployment.
+
+Common cause of this error are:
+
+- Immediately trying to run the pipeline after creating the Azure Function
+- The Service Principal does not have proper permission to the Resource Group of the Azure Function
