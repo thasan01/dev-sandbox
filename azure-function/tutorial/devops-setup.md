@@ -117,6 +117,18 @@ Then click **Save**
 
 ![Create GCP Project](screenshots/setup-devops-011.png)
 
+## Other Settings
+
+From Pipeline page select **Setings**
+
+![Other Settings](screenshots/setup-devops-018.png)
+
+Select the **Override the YAML continuous integration trigger from here** checkbox.
+Click **Add** button under **Path Filters** and add the path to the Azure project.
+Only commits under this path will triger the DevOps pipeline.
+
+![Other Settings](screenshots/setup-devops-019.png)
+
 ## Troubleshooting
 
 ### :x: Resource Doesn't Exist
@@ -127,3 +139,21 @@ Common cause of this error are:
 
 - Immediately trying to run the pipeline after creating the Azure Function
 - The Service Principal does not have proper permission to the Resource Group of the Azure Function
+
+First confirm the Service Principal has the "Contibutor" role in the scope.
+
+```
+az role assignment list --assignee <SERVICE_PRINCIPAL_ID> --role Contributor --scope <SCOPE>
+```
+
+If not, then add it
+
+```
+az role assignment create --assignee <SERVICE_PRINCIPAL_ID> --role Contributor --scope <SCOPE>
+```
+
+**<SERVICE_PRINCIPAL_ID>** and **<SCOPE>** are **appId** and **scope** from [Create Service Principal](#create-service-principal)
+
+**Reference Links**
+
+- [az role assignment](https://learn.microsoft.com/en-us/cli/azure/role/assignment?view=azure-cli-latest)
