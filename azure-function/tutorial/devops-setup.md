@@ -6,7 +6,7 @@
 2. [Create Service Principal](#create-service-principal)
 3. [Service Connection Setup](#service-connection-setup)
 4. [Repository Setup](#repository-setup)
-5. [Other Settings](other-settings)
+5. [Other Settings](#other-settings)
 6. [Troubleshooting](#troubleshooting)
 
 ## Prerequisites
