@@ -124,8 +124,12 @@ From Pipeline page select **Setings**
 ![Other Settings](screenshots/setup-devops-018.png)
 
 Select the **Override the YAML continuous integration trigger from here** checkbox.
+
 Click **Add** button under **Path Filters** and add the path to the Azure project.
+
 Only commits under this path will triger the DevOps pipeline.
+
+Click **Save & queue**.
 
 ![Other Settings](screenshots/setup-devops-019.png)
 
