@@ -157,7 +157,7 @@ If not, then add it
 az role assignment create --assignee <SERVICE_PRINCIPAL_ID> --role Contributor --scope <SCOPE>
 ```
 
-**<SERVICE_PRINCIPAL_ID>** and **<SCOPE>** are **appId** and **scope** from [Create Service Principal](#create-service-principal)
+**SERVICE_PRINCIPAL_ID** and **SCOPE** are **appId** and **scope** from [Create Service Principal](#create-service-principal)
 
 **Reference Links**
 
