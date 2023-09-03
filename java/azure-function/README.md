@@ -1,5 +1,6 @@
 ## Prerequisites
 
+test
 Following software must be installed:
 
 - JDK 17 or higher [Link](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html)
