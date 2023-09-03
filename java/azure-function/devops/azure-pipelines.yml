@@ -35,9 +35,9 @@ steps:
 
 # Create Archive : zip file
   - task: ArchiveFiles@2
-    displayName: 'Archive $(build.artifactstagingdirectory)/azure-function/target/azure-functions/$(azAppName)'
+    displayName: 'Archive $(build.artifactstagingdirectory)/java/azure-function/target/azure-functions/$(azAppName)'
     inputs:
-      rootFolderOrFile: '$(build.artifactstagingdirectory)/azure-function/target/azure-functions/$(azAppName)'
+      rootFolderOrFile: '$(build.artifactstagingdirectory)/java/azure-function/target/azure-functions/$(azAppName)'
       includeRootFolder: false
       archiveType: 'zip'
       archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
