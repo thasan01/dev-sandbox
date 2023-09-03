@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <!--
+            Add/Remove multiple HTML Canvas element on top of one another to create a "Layering" affect.
+        -->
+        <title>MultiLayer Canvas</title>
+        <script>
+            const Screen = ((root)=>{
+                let counter = 0;
+                const prefix = "screen_layer_";
+
+                function addLayer(cssOpts){
+                    let id = [prefix, counter++].join("");          
+                    var canvas = document.createElement('canvas');
+                    canvas.id = id;
+
+                    for (let key in cssOpts) 
+                        canvas.style[key] = cssOpts[key];
+
+                    canvas.style.zIndex = root.children.length + 1;
+                    root.appendChild(canvas);
+                    return id;
+                }
+
+                function removeLayer(id){
+                    let child = [...root.childNodes].find((elem)=>elem.id === id);
+                    if(child){
+                        root.removeChild(child);
+                    }
+                }
+
+                return {addLayer, removeLayer}
+            });
+
+            window.onload = function() {
+                console.log("init");
+                let screen = Screen(document.getElementById("screen"));
+                let layers = [];
+
+                document.getElementById("btn_push_layer").onclick = function(){
+                    console.log("pushing canvas layer");
+                    let cssOpts = document.getElementById("txt_css_opts");
+                    cssOpts = cssOpts && cssOpts.value ? JSON.parse(cssOpts.value) : null;
+                    //generates a random number between 0 and 255
+                    let rnd = ()=>{ return Math.round(Math.random()*254) };
+
+                    if(cssOpts)
+                        cssOpts["backgroundColor"] = ["rgb(", rnd(), ", ", rnd(), ",", rnd(), ")"].join("");
+
+                    layers.push(screen.addLayer(cssOpts));
+                }; 
+
+                document.getElementById("btn_pop_layer").onclick = function(){
+                    let id = layers.pop();
+                    console.log("Removing layer:",id);
+                    screen.removeLayer(id);
+                }; 
+            };
+        </script>
+
+
+        <style>
+            #screen  {position: relative; width: 640px; height: 480px; }
+            #screen canvas {position: absolute; left: 0; right: 0; width: 100%; height: 100%;}            
+        </style>        
+
+    </head>
+
+    <body>
+        <div id="screen"></div>
+        <br/>
+        <input type="button" id="btn_push_layer" value="Push Layer"/>
+        <input type="button" id="btn_pop_layer" value="Pop Layer"/> 
+        <br/>
+        CSS Options: <input type="textarea" id="txt_css_opts" placeholder='{"backgroundColor" : "rgb(255, 125, 115)"}' value='{"backgroundColor" : "rgb(255, 125, 115)"}'>
+    </body>    
+
+</html>

@@ -1,0 +1,28 @@
+{
+  "name": "webgl",
+  "version": "1.0.0",
+  "description": "",
+  "main": "renderer.js",
+  "scripts": {
+    "build": "browserify src/app.js -o build/app.js --standalone app",
+    "server": "run-script-os",
+    "server:win32": "bin\\start-server.bat",
+    "server:linux": "bin/start-server.sh",
+    "server:default": "echo 'This will run on any platform that does not have its own script'",
+    "test": "nyc mocha 'test/**/*.js' --recursive",
+    "scan": "sonar-scanner"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "gl-matrix": "^3.3.0",
+    "jquery": "^3.6.0"
+  },
+  "devDependencies": {
+    "chai": "^4.3.4",
+    "jsdoc": "^3.6.7",
+    "nyc": "^15.1.0",
+    "read-file": "^0.2.0",
+    "run-script-os": "^1.1.6"
+  }
+}

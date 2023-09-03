@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Tile Sprites</title>
+<meta charset="UTF-8"/>
+
+<!-- 
+    Demo: 
+
+    Concepts: 
+    Uniform Buffer Objects
+
+    Functions:
+-->
+
+<script src="../../build/app.js"></script>
+
+<script>
+const TILE_SIZE = 64;
+const [SCREEN_WIDTH, SCREEN_HEIGHT] = [640, 480];
+const [TILE_WIDTH, TILE_HEIGHT] = [TILE_SIZE,TILE_SIZE];
+
+const {glMatrix, jQuery:$} = app.libs;
+const {mat4, vec3} = glMatrix;
+
+const {TileEngine, Renderer, AsyncTask, SpriteSystem, MixedTypedArray, Constants, Screen, SystemDetails, keyCode} = app.modules;
+const {vert_coords, text_coords, face_indices} = Constants; 
+const {serverUrl} = app.params;
+const {isLittleEndian} = SystemDetails;
+
+let init = false;
+let shaderProgram = null;
+let spriteShaderProgram = null;
+let renderer = null;
+let startCoord = [0,0];
+let spriteSystem = null; //
+let heroUid = null; //
+
+let cameraUbo = null; //NEW: UBO id for Camera block
+let scrollUbo = null; //NEW: UBO id for ScrollDetails block
+
+let keyState = {};
+
+let tileTexture = null;
+let spriteTexture = null;
+
+//define tilemap data
+let numTileCols = 20;
+let numTileRows = 15;
+let tileIds = new Uint16Array([
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,  
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,  
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,  
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,  
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,  
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,  
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,  
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,  
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,  
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,  
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,  
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,  
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,  
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+    ]);
+
+const screenGrid = ((numRows, numColumns, options)=>{
+    const {width=1, height=1} = options ? options : {};
+    let size = numRows * numColumns; 
+    let grid = [];
+
+    for(var y=0, idx=0; y<numRows; y++){
+        for(var x=0; x<numColumns; x++){
+            grid[idx] = x * width;
+            grid[idx+1] = y * height;
+            idx += 2;
+        }
+    }
+
+    console.log(grid);
+    return grid;
+})(12, 10);
+
+let tileVertexShaderResponse = $.ajax({ url: `${serverUrl}/shaders/scrollable-tilemap-v2.vert`});
+let tileFragmentShaderResponse = $.ajax({ url: `${serverUrl}/shaders/scrollable-tilemap-v2.frag`});
+//NEW: updated sprite shader
+let spriteVertexShaderResponse = $.ajax({ url: `${serverUrl}/shaders/tiled-sprite.vert`}); 
+let spriteFragmentShaderResponse = $.ajax({ url: `${serverUrl}/shaders/tiled-sprite.frag`});
+
+let tileEngine = TileEngine({ numTileCols, numTileRows, tileIds, origin:[10,0], tileUnit:1 });
+let instanceCount = tileEngine.schema.column.maxScreenTiles * tileEngine.schema.row.maxScreenTiles;
+
+let spritesGrid = {"19,1": [
+    {offset : [0, 0], spriteId: 1, screenTileId: -1, spriteUid: -1}
+]};
+
+//NEW:
+const {EVENT_TYPES, 
+    EVENT_TYPES : {SCROLL_LEFT, SCROLL_RIGHT, SCROLL_UP, SCROLL_DOWN},
+} = tileEngine;
+
+tileEngine.schema.column.maxScreenTiles;
+tileEngine.schema.row.maxScreenTiles;
+console.log(tileEngine.schema);
+tileEngine.register(({ event, add, remove, localOrigin})=>{
+    if(event === SCROLL_LEFT){
+        console.log("scrolling left:", {add, remove, localOrigin});
+    } else if (event === SCROLL_RIGHT){
+        console.log("scrolling right:", {add, remove, localOrigin});
+        for(var i = tileEngine.schema.row.start; i<=tileEngine.schema.row.end; i++){
+            var entries = spritesGrid[add+","+i];
+            if(!entries) continue;
+
+            console.log("Adding entries:", entries);
+            for(let entry of entries){
+
+                let uid = entry.spriteUid >= 0 ? entry.spriteUid : undefined;
+
+                //add static sprite (offsetx, offsety, spriteId, tileId)
+                let [offsetx, offsety] = entry.offset; 
+                uid = spriteSystem.set([offsetx, offsety, 15, -1], uid); 
+                entry.spriteUid = uid;
+            }
+
+        }
+    }
+
+    spriteShaderProgram.use();
+    //spriteShaderProgram.setVariable2fv("u_start_coord", localOrigin);
+    shaderProgram.use();
+});
+
+function initGL(gl) {
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+}
+
+function setUpView(gl){
+    //Setup MVP (Model View Project) Matrix
+    let [halfWidth, halfHeight] = [ SCREEN_WIDTH/2, SCREEN_HEIGHT/2];
+    let projMatrix = mat4.create();    
+    mat4.ortho(projMatrix, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, -5, 5); 
+    //mat4.ortho(projMatrix, -halfWidth*2, SCREEN_WIDTH*2, SCREEN_HEIGHT*2, -halfHeight*2, -5, 5); //Used for Scroll debugging
+
+    let viewMatrix = mat4.create();
+    mat4.lookAt(viewMatrix, [0, 0, -5], [0, 0, 0], [0, 1, 0]);
+
+    let modelMatrix = mat4.create();
+    let moveVec = vec3.fromValues(0.5, 0.5, 1); 
+    let scaleVec = vec3.fromValues(TILE_WIDTH, TILE_HEIGHT, 0);
+    mat4.scale(modelMatrix, modelMatrix, scaleVec);
+    mat4.translate(modelMatrix, modelMatrix, moveVec); 
+
+    let mvpMatrix = mat4.create();
+    mat4.multiply(mvpMatrix, modelMatrix, viewMatrix);
+    mat4.multiply(mvpMatrix, projMatrix, modelMatrix); 
+
+    //Update the Camera UBO with data
+    renderer.createUniformBuffer({length: 16, bufferObject: cameraUbo, srcData : mvpMatrix });
+
+    //Bind the Camera UBO with the TileMap ShaderProgram 
+    shaderProgram.bindUbo("Camera", cameraUbo);
+
+    //Bind the Camera UBO with the Sprite ShaderProgram 
+    spriteShaderProgram.use();
+    spriteShaderProgram.bindUbo("Camera", cameraUbo);
+    shaderProgram.use();
+
+    //================================    
+    let scrollData = new Float32Array(4);
+    scrollData[0] = 5;
+    scrollData[1] = 0;
+
+    renderer.createUniformBuffer({length: 4, bufferObject: scrollUbo, srcData : scrollData });    
+
+    spriteShaderProgram.use();
+    spriteShaderProgram.bindUbo("ScrollDetails", scrollUbo);
+    shaderProgram.use();
+    //================================    
+}
+
+
+//=====================================================
+// STEP: Setup gameloop
+//=====================================================
+let game = AsyncTask({ scheduleFunc: requestAnimationFrame, cancelFunc: cancelAnimationFrame });
+
+function processInputs() {
+    const MOVE_AMOUNT = 0.012;
+    const { UP, DOWN, LEFT, RIGHT } = keyCode;
+    let [movex, movey] = [0, 0];
+
+    if (keyState[UP]) {
+      movey += MOVE_AMOUNT;
+    }
+    else if (keyState[DOWN]) {
+      movey -= MOVE_AMOUNT;
+    }
+    if (keyState[LEFT]) {
+      movex += MOVE_AMOUNT;
+    }
+    else if (keyState[RIGHT]) {
+      movex -= MOVE_AMOUNT;
+    }
+
+    let midY = (tileEngine.schema.row.maxScreenTiles / 2) - 1;
+    let midX = (tileEngine.schema.column.maxScreenTiles / 2) - 1;
+
+    let [scrollX, scrollY] = [1, 1];
+
+    //===============================
+    //NEW: Move sprite based on input
+    //===============================
+    spriteSystem.apply(heroUid, (view, offset)=>{
+        //Get the current x/y values from the DataBuffer 
+        let yoffset = offset + Float32Array.BYTES_PER_ELEMENT;
+        let x = view.getFloat32(offset, isLittleEndian);
+        let y = view.getFloat32(yoffset, isLittleEndian);
+        
+        x-=movex;
+        y-=movey;
+
+        //Decide whether to move the character sprite or scroll the background tiles in the opposite direction
+        if((movex < 0 && x < midX) || (movex > 0 && x > midX))
+            scrollX = 0;
+        
+        if((movey < 0 && y < midY) || (movey > 0 && y > midY))
+            scrollY = 0;
+        
+        movex *= scrollX;
+        movey *= scrollY;
+
+        let [movedX, movedY] = tileEngine.scroll(movex, movey, shaderProgram);
+
+        //If not scroll, or attampted to scroll but couldn't
+        //then move the character sprite 
+        if(!movedX)
+            view.setFloat32(offset, x, isLittleEndian);
+        
+        if(!movedY)
+            view.setFloat32(yoffset, y, isLittleEndian);        
+    });
+
+}
+
+game.callback((dt) => {    
+    //Process inputs
+    processInputs();
+    spriteSystem.update();
+ 
+    //Render screen
+    renderer.render(({context:gl})=>{        
+
+      gl.drawElementsInstanced(gl.TRIANGLES, face_indices.length, gl.UNSIGNED_SHORT, 0, instanceCount); 
+      
+      spriteSystem.render(face_indices.length);
+
+      //Restore tile shader program configs
+      shaderProgram.use();      
+      tileTexture.bind();
+      
+      gl.flush();
+    });
+});
+
+
+window.onload = async () => {
+
+    let screen = Screen({root:document.getElementById("screen")});
+    let layerId = screen.addLayer({});
+    let canvas = document.getElementById(layerId);
+
+    await tileVertexShaderResponse;
+    await tileFragmentShaderResponse;
+    await spriteVertexShaderResponse;
+    await spriteFragmentShaderResponse;
+
+    //=====================================================
+    //STEP: Initialize the renderer
+    //=====================================================
+    renderer = Renderer({
+        "canvas": canvas,
+        "shaderPrograms": [{
+            "name": "main",
+            "vertexShaders": [tileVertexShaderResponse.responseText],
+            "franmentShaders": [tileFragmentShaderResponse.responseText]
+        },
+        {
+            "name": "sprite",
+            "vertexShaders": [spriteVertexShaderResponse.responseText],
+            "franmentShaders": [spriteFragmentShaderResponse.responseText]            
+        }]
+    });
+
+    let { context: gl, shaderPrograms } = renderer;
+
+    //NEW: Create & setup UBOs
+    cameraUbo = renderer.createUniformBuffer({length: 16});
+    scrollUbo = renderer.createUniformBuffer({});
+
+    //Create & bind buffer objects
+    let vertex_buffer = renderer.createArrayBuffer(vert_coords);
+    let texture_buffer = renderer.createArrayBuffer(text_coords); 
+    let index_buffer = renderer.createElementBuffer(face_indices);
+
+    //Set up Sprite Shader Program
+    spriteShaderProgram = shaderPrograms.sprite;
+
+    spriteSystem = SpriteSystem({ renderer, gfxContext:gl, shaderProgram: spriteShaderProgram, vertexBuffer:vertex_buffer, textureBuffer:texture_buffer })
+    spriteShaderProgram.setVariable2i("u_image_dim", 8, 7);
+    //spriteShaderProgram.setVariable2f("u_start_coord", tileEngine.schema.column.start, tileEngine.schema.row.start); 
+        
+    shaderProgram = shaderPrograms.main;   
+    shaderProgram.use();
+    
+    //Set shader variables
+    shaderProgram.setAttribute("a_position", vertex_buffer, 3, gl.FLOAT);
+    shaderProgram.setAttribute("a_texCoord", texture_buffer, 2, gl.FLOAT, {normalized:true}); 
+    shaderProgram.setVariable1iv("u_tile_map", tileIds); 
+    shaderProgram.setVariable2i("u_image_dim", 3,1); //the tileSet is 3x1
+    shaderProgram.setVariable2i("u_screen_dim", tileEngine.schema.column.maxScreenTiles, tileEngine.schema.row.maxScreenTiles);
+    shaderProgram.setVariable2i("u_tilemap_dim", numTileCols, numTileRows);            
+
+    let tileImage = null;
+    let url = `${serverUrl}/images/tileset.png`;
+    let promise1 = renderer.loadImage(url, (res) => tileImage = res);
+
+    let spriteImage = null;
+    url = `${serverUrl}/images/char.png`;
+    let promise2 = renderer.loadImage(url, (res) => spriteImage = res);
+
+    await promise1;
+    await promise2;
+
+    //Initialize the SpriteSystem
+    spriteSystem.spriteTexture(renderer.loadTexture(spriteImage));    
+    spriteSystem.set([0, 0, 9, 5, 5]); //add static sprite (offsetx, offsety, spriteId, tileId)
+    heroUid = spriteSystem.set([1, 2, 17, 6, 4]); //add "hero" sprite
+    
+    tileTexture = renderer.loadTexture(tileImage);        
+    tileTexture.bind();
+    shaderProgram.use();
+    shaderProgram.setVariable1i("u_image", tileTexture.activeChannel);
+
+    //Recalculate the mvp matrix
+    setUpView(gl);
+
+
+    document.getElementById("btn_start").addEventListener("click", (evnt) => {
+        game.toggle();
+    });
+
+    //key press event
+    document.addEventListener("keydown", ({ key, keyCode }) => {
+        keyState[keyCode] = true;
+    });
+
+    //key release event
+    document.addEventListener("keyup", ({ key, keyCode }) => {
+        keyState[keyCode] = false;
+    });    
+
+}
+</script>
+
+<style>
+    #screen  {border-style: solid; position: relative;}
+    #screen canvas {position: absolute; left: 0; right: 0; width: 100%; height: 100%;} 
+</style>
+
+</head>
+<body>    
+    <div id="screen">
+        <!--Programmatically generated canvas layers go here-->        
+    </div>
+    <div>  
+        <button name="start" id="btn_start">Start</button>
+    </div>
+</body>
+</html>

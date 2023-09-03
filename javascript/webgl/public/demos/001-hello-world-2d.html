@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Hello World 2D</title>
+<meta charset="UTF-8"/>
+<script src="../../build/app.js"></script>
+
+<script type="glsl" id="vs1">#version 300 es
+in vec3 a_position;
+
+uniform mat4 u_mvpMatrix; // (projection * view * model)
+    
+void main()
+{
+    gl_Position = u_mvpMatrix * vec4(a_position, 1.0);
+}    
+</script>
+
+<script type="glsl" id="fs1">#version 300 es
+precision mediump float;
+out vec4 pixelColor;
+    
+void main(void) {    
+    pixelColor = vec4(0.9, 0.3, 0.6, 1.0);
+}
+</script>
+
+
+<script>
+const [SCREEN_WIDTH, SCREEN_HEIGHT] = [640, 480];
+
+const {glMatrix} = app.libs;
+const {mat4, vec3} = glMatrix;
+
+const {Renderer, Constants} = app.modules;
+const {vert_coords, face_indices} = Constants;
+
+function initGL(gl) {
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+}
+
+window.onload = async () => {
+
+    let canvas = document.getElementById('screen_canvas');
+    canvas.width  = SCREEN_WIDTH;
+    canvas.height = SCREEN_HEIGHT; 
+    canvas.style.width  = `${SCREEN_WIDTH}px`;
+    canvas.style.height = `${SCREEN_HEIGHT}px`;
+
+    let vsSource = document.getElementById('vs1').innerHTML;
+    let fsSource = document.getElementById('fs1').innerHTML;
+
+    //=====================================================
+    //STEP: Initialize the renderer
+    //  1. Init OpenGL
+    //  2. Compile & Link Shaders and create ShaderProgram
+    //=====================================================
+    const renderer = Renderer({
+        "canvas": canvas,
+        "shaderPrograms": [{
+            "name": "main",
+            "vertexShaders": [vsSource],
+            "franmentShaders": [fsSource]
+        }]
+    });
+
+    let { context: gl, shaderPrograms } = renderer;
+    let { main: shaderProgram } = shaderPrograms;
+    
+    //Setup MVP (Model View Project) Matrix
+    let [halfWidth, halfHeight] = [ SCREEN_WIDTH/2, SCREEN_HEIGHT/2];
+    let projMatrix = mat4.create();    
+    mat4.ortho(projMatrix, -halfWidth, halfWidth, -halfHeight, halfHeight, -5, 5);  //Input Args: out, left, right, bottom, top, near, far
+
+    let viewMatrix = mat4.create();
+    mat4.lookAt(viewMatrix, [0, 0, -5], [0, 0, 0], [0, 1, 0]);
+
+    let modelMatrix = mat4.create();
+    let moveVec = vec3.fromValues(0, 0, 1);
+    let scaleVec = vec3.fromValues(256, 256, 0);
+    mat4.translate(modelMatrix, modelMatrix, moveVec);
+    mat4.scale(modelMatrix, modelMatrix, scaleVec);
+
+    let mvpMatrix = mat4.create();
+    mat4.multiply(mvpMatrix, modelMatrix, viewMatrix);
+    mat4.multiply(mvpMatrix, projMatrix, modelMatrix);    
+
+    //Create & bind buffer objects
+    let vertex_buffer = renderer.createArrayBuffer(vert_coords);
+    let index_buffer = renderer.createElementBuffer(face_indices);
+
+    //Set shader variables
+    shaderProgram.use();
+    shaderProgram.setVariableMatrix4fv("u_mvpMatrix", mvpMatrix);
+    shaderProgram.setAttribute("a_position", vertex_buffer, 3, gl.FLOAT);
+
+    //=====================================================
+    // STEP: Render Screen
+    //=====================================================
+    renderer.render(({gl:context})=>{
+        gl.drawElements(gl.TRIANGLES, face_indices.length, gl.UNSIGNED_SHORT, face_indices);
+        gl.flush();
+    });    
+
+}
+</script>
+
+</head>
+<body>
+    <canvas id="screen_canvas"></canvas>
+</body>
+</html>

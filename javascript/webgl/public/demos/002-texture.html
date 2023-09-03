@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Texture</title>
+<meta charset="UTF-8"/>
+<script src="../../build/app.js"></script>
+
+<script>
+const [SCREEN_WIDTH, SCREEN_HEIGHT] = [640, 480];
+
+const {glMatrix, jQuery:$} = app.libs;
+const {mat4, vec3} = glMatrix;
+
+const {Renderer, Constants} = app.modules;
+const {vert_coords, text_coords, face_indices} = Constants; //NEW: Load texture coordinates
+const {serverUrl} = app.params;
+
+function initGL(gl) {
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+}
+
+let vertexShaderResponse = $.ajax({ url: `${serverUrl}/shaders/simple-texture.vert`});
+let fragmentShaderResponse = $.ajax({ url: `${serverUrl}/shaders/simple-texture.frag`});
+
+window.onload = async () => {
+
+    await vertexShaderResponse;
+    await fragmentShaderResponse;
+
+    let canvas = document.getElementById('screen_canvas');
+    canvas.width  = SCREEN_WIDTH;
+    canvas.height = SCREEN_HEIGHT; 
+    canvas.style.width  = `${SCREEN_WIDTH}px`;
+    canvas.style.height = `${SCREEN_HEIGHT}px`;
+
+    //Load shader source from local server
+    let vsSource = vertexShaderResponse.responseText;
+    let fsSource = fragmentShaderResponse.responseText;
+
+    //=====================================================
+    //STEP: Initialize the renderer
+    //=====================================================
+    const renderer = Renderer({
+        "canvas": canvas,
+        "shaderPrograms": [{
+            "name": "main",
+            "vertexShaders": [vsSource],
+            "franmentShaders": [fsSource]
+        }]
+    });
+
+    let { context: gl, shaderPrograms } = renderer;
+    let { main: shaderProgram } = shaderPrograms;
+    
+    //Setup MVP (Model View Project) Matrix
+    let [halfWidth, halfHeight] = [ SCREEN_WIDTH/2, SCREEN_HEIGHT/2];
+    let projMatrix = mat4.create();    
+    mat4.ortho(projMatrix, -halfWidth, halfWidth, halfHeight, -halfHeight, -5, 5); 
+
+    let viewMatrix = mat4.create();
+    mat4.lookAt(viewMatrix, [0, 0, -5], [0, 0, 0], [0, 1, 0]);
+
+    let modelMatrix = mat4.create();
+    let moveVec = vec3.fromValues(0, 0, 1);
+    let scaleVec = vec3.fromValues(256, 256, 0);
+    mat4.translate(modelMatrix, modelMatrix, moveVec);
+    mat4.scale(modelMatrix, modelMatrix, scaleVec);
+
+    let mvpMatrix = mat4.create();
+    mat4.multiply(mvpMatrix, modelMatrix, viewMatrix);
+    mat4.multiply(mvpMatrix, projMatrix, modelMatrix);    
+
+    //Create & bind buffer objects
+    let vertex_buffer = renderer.createArrayBuffer(vert_coords);
+    let texture_buffer = renderer.createArrayBuffer(text_coords); //NEW: load buffer obejct for texture coords.
+    let index_buffer = renderer.createElementBuffer(face_indices);
+
+    //Set shader variables
+    shaderProgram.use();
+    shaderProgram.setVariableMatrix4fv("u_mvpMatrix", mvpMatrix);
+    shaderProgram.setAttribute("a_position", vertex_buffer, 3, gl.FLOAT);
+    shaderProgram.setAttribute("a_texCoord", texture_buffer, 2, gl.FLOAT, true); //NEW: pass texture coords onto shader
+
+    //NEW: load & bind texture object
+    let image = null;
+    let url = `${serverUrl}/images/brick1.jpg`;
+    let promise = renderer.loadImage(url, (res) => image = res);
+    await promise;
+    let texture = renderer.loadTexture(image);        
+    texture.bind();
+    shaderProgram.setVariable1i("u_image", texture.activeChannel);
+
+
+    //=====================================================
+    // STEP: Render Screen
+    //=====================================================
+    renderer.render(({gl:context})=>{
+        gl.drawElements(gl.TRIANGLES, face_indices.length, gl.UNSIGNED_SHORT, face_indices);
+        gl.flush();
+    });    
+
+}
+</script>
+
+</head>
+<body>
+    <canvas id="screen_canvas"></canvas>
+</body>
+</html>

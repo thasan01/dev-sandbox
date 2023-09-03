@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Tilemap</title>
+<meta charset="UTF-8"/>
+
+<!-- 
+    Demo: 
+    This demo renders a static tilemap using "Instancing". Following variables are defined:
+
+        Tile Set: a texture image with all the tiles. Passed as 'u_image' into fragment shader. 
+        Tile Dimensions: 2d integer vector, containing rows/columns for the tileSet. Passed as 'u_image_dim' into fragment shader.  
+        Tile Map: An array containing the tile ids from the Tile Set. Passed as 'u_tile_map' into fragment shader.
+        Tile Offsets: An array of x/y coordinates for tile in the Tile Map. Passed as 'a_offset' attribute int the vertex shader.
+
+    Each "instance" has a tileId and offset in the shader. The fragment shader uses the tileId 
+    to calculate the U/V texture coord for the tileset.
+
+    Functions:
+    gl.drawElementsInstanced, gl.vertexAttribDivisor
+
+-->
+
+<script src="../../build/app.js"></script>
+
+<script>
+const [SCREEN_WIDTH, SCREEN_HEIGHT] = [640, 480];
+
+const {glMatrix, jQuery:$} = app.libs;
+const {mat4, vec3} = glMatrix;
+
+const {Renderer, AsyncTask, Constants} = app.modules;
+const {vert_coords, text_coords, face_indices} = Constants; 
+const {serverUrl} = app.params;
+
+
+let shaderProgram = null;
+let renderer = null;
+
+//NEW: define tilemap data
+let numTileCols = 5;
+let numTileRows = 4;
+let tileIds = new Uint16Array([
+        1, 1, 1, 1, 1,  
+        1, 0, 2, 0, 1,  
+        1, 2, 0, 2, 1,  
+        1, 1, 1, 1, 1,  
+    ]);
+
+let tileOffsets = new Float32Array([
+    0,0, 1,0, 2,0, 3,0, 4,0,  
+    0,1, 1,1, 2,1, 3,1, 4,1, 
+    0,2, 1,2, 2,2, 3,2, 4,2, 
+    0,3, 1,3, 2,3, 3,3, 4,3, 
+]);
+
+
+function initGL(gl) {
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+}
+
+let vertexShaderResponse = $.ajax({ url: `${serverUrl}/shaders/simple-tilemap.vert`});
+let fragmentShaderResponse = $.ajax({ url: `${serverUrl}/shaders/simple-tilemap.frag`});
+
+function setUpView(){
+    //Setup MVP (Model View Project) Matrix
+    let [halfWidth, halfHeight] = [ SCREEN_WIDTH/2, SCREEN_HEIGHT/2];
+    let projMatrix = mat4.create();    
+    mat4.ortho(projMatrix, -halfWidth, halfWidth, halfHeight, -halfHeight, -5, 5); 
+
+    let viewMatrix = mat4.create();
+    mat4.lookAt(viewMatrix, [0, 0, -5], [0, 0, 0], [0, 1, 0]);
+
+    let modelMatrix = mat4.create();
+    let moveVec = vec3.fromValues(0, 0, 1);
+    let scaleVec = vec3.fromValues(32, 32, 0);
+    mat4.translate(modelMatrix, modelMatrix, moveVec);
+    mat4.scale(modelMatrix, modelMatrix, scaleVec);
+
+    let mvpMatrix = mat4.create();
+    mat4.multiply(mvpMatrix, modelMatrix, viewMatrix);
+    mat4.multiply(mvpMatrix, projMatrix, modelMatrix); 
+
+    shaderProgram.setVariableMatrix4fv("u_mvpMatrix", mvpMatrix);
+}
+
+
+//=====================================================
+// STEP: Setup gameloop
+//=====================================================
+let game = AsyncTask({ scheduleFunc: requestAnimationFrame, cancelFunc: cancelAnimationFrame });
+game.callback((dt) => {
+    
+    //Recalculate the mvp matrix every frame.
+    setUpView();
+
+    //Render screen
+    renderer.render(({context:gl})=>{
+      let instanceCount = tileIds.length; //NEW:
+      gl.drawElementsInstanced(gl.TRIANGLES, face_indices.length, gl.UNSIGNED_SHORT, 0, instanceCount); //NEW:
+      gl.flush();
+    });    
+
+});
+
+
+window.onload = async () => {
+
+    await vertexShaderResponse;
+    await fragmentShaderResponse;
+
+    let canvas = document.getElementById('screen_canvas');
+    canvas.width  = SCREEN_WIDTH;
+    canvas.height = SCREEN_HEIGHT; 
+    canvas.style.width  = `${SCREEN_WIDTH}px`;
+    canvas.style.height = `${SCREEN_HEIGHT}px`;
+
+    let vsSource = vertexShaderResponse.responseText;
+    let fsSource = fragmentShaderResponse.responseText;
+
+    //=====================================================
+    //STEP: Initialize the renderer
+    //=====================================================
+    renderer = Renderer({
+        "canvas": canvas,
+        "shaderPrograms": [{
+            "name": "main",
+            "vertexShaders": [vsSource],
+            "franmentShaders": [fsSource]
+        }]
+    });
+
+    let { context: gl, shaderPrograms } = renderer;
+    shaderProgram = shaderPrograms.main;   
+
+    //Create & bind buffer objects
+    let vertex_buffer = renderer.createArrayBuffer(vert_coords);
+    let texture_buffer = renderer.createArrayBuffer(text_coords); 
+    let index_buffer = renderer.createElementBuffer(face_indices);
+
+    let tile_offset_buffer = renderer.createArrayBuffer(tileOffsets); //NEW: 
+
+    //Set shader variables
+    shaderProgram.use();
+    shaderProgram.setAttribute("a_position", vertex_buffer, 3, gl.FLOAT);
+    shaderProgram.setAttribute("a_texCoord", texture_buffer, 2, gl.FLOAT, {normalized:true}); 
+    shaderProgram.setAttribute("a_offset", tile_offset_buffer, 2, gl.FLOAT, {divisor:1} ); //NEW: set gl.vertexAttribDivisor value to 1
+    shaderProgram.setVariable1iv("u_tile_map", tileIds); //NEW
+    shaderProgram.setVariable2i("u_image_dim", 3,1); //NEW: the tileSet is 3x1
+
+    let image = null;
+    let url = `${serverUrl}/images/tileset.png`;
+    let promise = renderer.loadImage(url, (res) => image = res);
+    await promise;
+    let texture = renderer.loadTexture(image);        
+    texture.bind();
+    shaderProgram.setVariable1i("u_image", texture.activeChannel);
+
+    document.getElementById("btn_start").addEventListener("click", (evnt) => {
+        game.toggle();
+    });
+
+}
+</script>
+
+</head>
+<body>
+    <canvas id="screen_canvas"></canvas>
+    
+    <div>  
+        <button name="start" id="btn_start">Start</button>
+      </div>
+
+</body>
+</html>

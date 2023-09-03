@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Scrollable Tilemap</title>
+<meta charset="UTF-8"/>
+
+<!-- 
+    Demo: 
+    This demo renders "sprites" using ontop of existing tiles.
+    
+    Concepts: 
+        Use multiple shader programs.
+        Load mixed array buffer objects.
+        Load shader attributes with offset & stride
+        
+    Functions:
+        gl.vertexAttribDivisor
+-->
+
+<script src="../../build/app.js"></script>
+
+<script>
+const TILE_SIZE = 64;
+const [SCREEN_WIDTH, SCREEN_HEIGHT] = [640, 480];
+const [TILE_WIDTH, TILE_HEIGHT] = [TILE_SIZE,TILE_SIZE];
+
+const {glMatrix, jQuery:$} = app.libs;
+const {mat4, vec3} = glMatrix;
+
+const {TileEngine, Renderer, AsyncTask, MixedTypedArray, Constants, Screen, keyCode} = app.modules; //NEW: added keyCode
+const {vert_coords, text_coords, face_indices} = Constants; 
+const {serverUrl} = app.params;
+
+let init = false;
+let tileEngine = null;
+let shaderProgram = null;
+let spriteShaderProgram = null;
+let renderer = null;
+let startCoord = [0,0];
+
+let keyState = {};
+
+let tileTexture = null;
+let spriteTexture = null;
+
+//define tilemap data
+let numTileCols = 20;
+let numTileRows = 15;
+let tileIds = new Uint16Array([
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,  
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,  
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,  
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,  
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,  
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,  
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,  
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,  
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,  
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,  
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,  
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,  
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,  
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+    ]);
+
+    //====================
+    //Start of NEW Block
+    //====================
+    let metadata = {
+        fieldSchema : [
+            {
+                elementCount: 2, //Number of elements in the field value
+                type: Float32Array, //The data type of each element
+                localOffset: NaN, //Number of bytes from the start of the object to this field
+            },
+            {
+                elementCount: 1, 
+                type: Float32Array, 
+                localOffset: NaN,
+            },
+        ],
+        objectCount: NaN,
+        objectBytes: NaN,// Total number of bytes for a single object (with padding) in the Mixed Buffer Array.  
+        arrayBytes: NaN, //Total number of bytes for the entire Mixed Buffer Array (with padding).
+    };
+
+    //let spritePos = [4, 4, 1, 1, 2, 2];
+    //let spriteIds = [9, 10, 11];
+
+    let spritePos = [4, 4, 1, 1];
+    let spriteIds = [9, 10];
+
+
+    //====================
+    //End of NEW Block
+    //====================
+
+let tileVertexShaderResponse = $.ajax({ url: `${serverUrl}/shaders/scrollable-tilemap.vert`});
+let tileFragmentShaderResponse = $.ajax({ url: `${serverUrl}/shaders/scrollable-tilemap.frag`});
+
+let spriteVertexShaderResponse = $.ajax({ url: `${serverUrl}/shaders/simple-sprite.vert`});
+let spriteFragmentShaderResponse = $.ajax({ url: `${serverUrl}/shaders/simple-sprite.frag`});
+
+
+tileEngine = TileEngine({ numTileCols, numTileRows, tileIds, origin:[10,0], tileUnit:1 });
+let instanceCount = tileEngine.schema.column.maxScreenTiles * tileEngine.schema.row.maxScreenTiles;
+
+function initGL(gl) {
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+}
+
+function setUpView(){
+    //Setup MVP (Model View Project) Matrix
+    let [halfWidth, halfHeight] = [ SCREEN_WIDTH/2, SCREEN_HEIGHT/2];
+    let projMatrix = mat4.create();    
+    mat4.ortho(projMatrix, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, -5, 5); 
+    //mat4.ortho(projMatrix, -halfWidth*2, SCREEN_WIDTH*2, SCREEN_HEIGHT*2, -halfHeight*2, -5, 5); //Used for Scroll debugging
+
+    let viewMatrix = mat4.create();
+    mat4.lookAt(viewMatrix, [0, 0, -5], [0, 0, 0], [0, 1, 0]);
+
+    let modelMatrix = mat4.create();
+    let moveVec = vec3.fromValues(0.5, 0.5, 1); //NEW
+    let scaleVec = vec3.fromValues(TILE_WIDTH, TILE_HEIGHT, 0);
+    mat4.scale(modelMatrix, modelMatrix, scaleVec);
+    mat4.translate(modelMatrix, modelMatrix, moveVec); //NEW
+
+    let mvpMatrix = mat4.create();
+    mat4.multiply(mvpMatrix, modelMatrix, viewMatrix);
+    mat4.multiply(mvpMatrix, projMatrix, modelMatrix); 
+
+    shaderProgram.setVariableMatrix4fv("u_mvpMatrix", mvpMatrix);
+
+    spriteShaderProgram.use();
+    spriteShaderProgram.setVariableMatrix4fv("u_mvpMatrix", mvpMatrix);
+    shaderProgram.use();
+}
+
+
+//=====================================================
+// STEP: Setup gameloop
+//=====================================================
+let game = AsyncTask({ scheduleFunc: requestAnimationFrame, cancelFunc: cancelAnimationFrame });
+
+//NEW
+function processInputs() {
+    const MOVE_AMOUNT = 0.025;
+    const { UP, DOWN, LEFT, RIGHT } = keyCode;
+    let [movex, movey] = [0, 0];
+
+    if (keyState[UP]) {
+      movey += MOVE_AMOUNT;
+    }
+    else if (keyState[DOWN]) {
+      movey -= MOVE_AMOUNT;
+    }
+    if (keyState[LEFT]) {
+      movex += MOVE_AMOUNT;
+    }
+    else if (keyState[RIGHT]) {
+      movex -= MOVE_AMOUNT;
+    }
+
+    tileEngine.scroll(movex, movey, shaderProgram);
+}
+
+game.callback((dt) => {    
+    //NEW: process inputs
+    processInputs();
+
+    //Recalculate the mvp matrix every frame.
+    setUpView();
+ 
+    //Render screen
+    renderer.render(({context:gl})=>{        
+      gl.drawElementsInstanced(gl.TRIANGLES, face_indices.length, gl.UNSIGNED_SHORT, 0, instanceCount); 
+
+      spriteShaderProgram.use();
+      spriteTexture.bind();
+      gl.drawElementsInstanced(gl.TRIANGLES, face_indices.length, gl.UNSIGNED_SHORT, 0, metadata.objectCount); //NEW:
+
+      //Restore tile shader program configs
+      shaderProgram.use();      
+      tileTexture.bind();
+      
+      gl.flush();
+    });
+});
+
+
+window.onload = async () => {
+
+    let screen = Screen({root:document.getElementById("screen")});
+    let layerId = screen.addLayer({});
+    let canvas = document.getElementById(layerId);
+
+    await tileVertexShaderResponse;
+    await tileFragmentShaderResponse;
+    await spriteVertexShaderResponse;
+    await spriteFragmentShaderResponse;
+
+    //=====================================================
+    //STEP: Initialize the renderer
+    //=====================================================
+    renderer = Renderer({
+        "canvas": canvas,
+        "shaderPrograms": [{
+            "name": "main",
+            "vertexShaders": [tileVertexShaderResponse.responseText],
+            "franmentShaders": [tileFragmentShaderResponse.responseText]
+        },
+        {
+            "name": "sprite",
+            "vertexShaders": [spriteVertexShaderResponse.responseText],
+            "franmentShaders": [spriteFragmentShaderResponse.responseText]            
+        }]
+    });
+
+    let { context: gl, shaderPrograms } = renderer;
+
+    //Create & bind buffer objects
+    let vertex_buffer = renderer.createArrayBuffer(vert_coords);
+    let texture_buffer = renderer.createArrayBuffer(text_coords); 
+    let index_buffer = renderer.createElementBuffer(face_indices);
+
+    //NEW: Set up Sprite Shader Program
+    let mtaResult = MixedTypedArray({metadata, sourceBuffers:[spritePos, spriteIds]});
+    console.log(mtaResult);
+    let spritePositionBuffer = renderer.createArrayBuffer(mtaResult.targetBuffers[0]);
+    let spriteTileIdBuffer = renderer.createArrayBuffer(mtaResult.targetBuffers[1]); 
+
+    spriteShaderProgram = shaderPrograms.sprite;
+    spriteShaderProgram.use();
+    spriteShaderProgram.setAttribute("a_position", vertex_buffer, 3, gl.FLOAT);
+    spriteShaderProgram.setAttribute("a_texCoord", texture_buffer, 2, gl.FLOAT, {normalized:true}); 
+
+    spriteShaderProgram.setAttribute("a_spriteOffset", spritePositionBuffer, 2, gl.FLOAT, { stride: 12, offset: 0, divisor: 1 }); 
+    spriteShaderProgram.setAttribute("a_spriteId", spritePositionBuffer, 1, gl.FLOAT, { stride: 12, offset: 8, divisor: 1 }); 
+    spriteShaderProgram.setVariable2i("u_image_dim", 8, 7);
+
+
+    shaderProgram = shaderPrograms.main;   
+    shaderProgram.use();
+    
+    //Set shader variables
+    shaderProgram.setAttribute("a_position", vertex_buffer, 3, gl.FLOAT);
+    shaderProgram.setAttribute("a_texCoord", texture_buffer, 2, gl.FLOAT, {normalized:true}); 
+    shaderProgram.setVariable1iv("u_tile_map", tileIds); 
+    shaderProgram.setVariable2i("u_image_dim", 3,1); //the tileSet is 3x1
+    shaderProgram.setVariable2i("u_screen_dim", tileEngine.schema.column.maxScreenTiles, tileEngine.schema.row.maxScreenTiles);
+    shaderProgram.setVariable2i("u_tilemap_dim", numTileCols, numTileRows);            
+
+    let tileImage = null;
+    let url = `${serverUrl}/images/tileset.png`;
+    let promise1 = renderer.loadImage(url, (res) => tileImage = res);
+
+    let spriteImage = null;
+    url = `${serverUrl}/images/char.png`;
+    let promise2 = renderer.loadImage(url, (res) => spriteImage = res);
+
+    await promise1;
+    await promise2;
+
+    spriteTexture = renderer.loadTexture(spriteImage);        
+    spriteTexture.bind();
+    spriteShaderProgram.use();
+    spriteShaderProgram.setVariable1i("u_image", spriteTexture.activeChannel);
+
+    
+    tileTexture = renderer.loadTexture(tileImage);        
+    tileTexture.bind();
+    shaderProgram.use();
+    shaderProgram.setVariable1i("u_image", tileTexture.activeChannel);
+
+    document.getElementById("btn_start").addEventListener("click", (evnt) => {
+        game.toggle();
+    });
+
+    //NEW: key press event
+    document.addEventListener("keydown", ({ key, keyCode }) => {
+        keyState[keyCode] = true;
+    });
+
+    //NEW: key release event
+    document.addEventListener("keyup", ({ key, keyCode }) => {
+        keyState[keyCode] = false;
+    });    
+
+}
+</script>
+
+<style>
+    #screen  {border-style: solid; position: relative;}
+    #screen canvas {position: absolute; left: 0; right: 0; width: 100%; height: 100%;} 
+</style>
+
+</head>
+<body>    
+    <div id="screen">
+        <!--Programmatically generated canvas layers go here-->        
+    </div>
+    <div>  
+        <button name="start" id="btn_start">Start</button>
+    </div>
+</body>
+</html>
