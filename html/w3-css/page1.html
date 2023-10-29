@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<title>W3.CSS</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="w3css_4_w3.css">
+
+
+<style>
+  body {background-color: #343F57; color: #A2B1C9;}
+  div[id=mySidebar] {
+    background-color: #2B2E3D !important;
+  }
+
+  div[id=mySidebar] a:hover{
+    background-color: #3B3F54 !important;
+  }
+
+  .link-region {
+    width: 200px;
+    height: 100px;
+    display:inline-block;
+  }
+
+  header {
+    background-color: #2B2E3D !important;
+
+    /*
+    background: rgb(63,72,204);
+    background: linear-gradient(45deg, rgba(63,72,204,1) 0%, rgba(0,162,232,1) 100%); 
+    */
+  }
+  </style>
+<!-- https://cssgradient.io/ -->
+<body>
+
+<div class="w3-sidebar w3-bar-block w3-card w3-animate-left" style="display:none" id="mySidebar">
+  <button class="w3-bar-item w3-button" onclick="w3_close()">Close &times;</button>
+  <a href="#" class="w3-bar-item w3-button">Link 1</a>
+  <a href="#" class="w3-bar-item w3-button">Link 2</a>
+  <a href="#" class="w3-bar-item w3-button">Link 3</a>
+</div>
+
+<div id="main">
+
+<header>
+  
+  <div class="w3-container w3-cell">
+    <button id="openNav" class="w3-button w3-xlarge" onclick="w3_open()">&#9776;</button>
+  </div>
+  
+  <div class="w3-container w3-cell w3-padding-8">
+    <h3>My Page</h3>
+  </div>
+
+</header>
+
+
+<div class="w3-container">
+  
+    <div class="w3-panel w3-card w3-margin-left w3-margin-right link-region w3-blue"><p>w3-card</p></div>
+    <div class="w3-panel w3-card w3-margin-left w3-margin-right link-region w3-red"><p>w3-card-2</p></div>
+    <div class="w3-panel w3-card w3-margin-left w3-margin-right link-region w3-green"><p>w3-card-4</p></div>
+    <div class="w3-panel w3-card w3-margin-left w3-margin-right link-region"><p>w3-card-4</p></div>
+    <div class="w3-panel w3-card w3-margin-left w3-margin-right link-region"><p>w3-card-4</p></div>
+    <div class="w3-panel w3-card w3-margin-left w3-margin-right link-region"><p>w3-card-4</p></div>
+    <div class="w3-panel w3-card w3-margin-left w3-margin-right link-region"><p>w3-card-4</p></div>
+
+</div>
+
+</div>
+
+<script>
+function w3_open() {
+  document.getElementById("main").style.marginLeft = "25%";
+  document.getElementById("mySidebar").style.width = "25%";
+  document.getElementById("mySidebar").style.display = "block";
+  document.getElementById("openNav").style.display = 'none';
+}
+function w3_close() {
+  document.getElementById("main").style.marginLeft = "0%";
+  document.getElementById("mySidebar").style.display = "none";
+  document.getElementById("openNav").style.display = "inline-block";
+}
+</script>
+
+</body>
+</html>
