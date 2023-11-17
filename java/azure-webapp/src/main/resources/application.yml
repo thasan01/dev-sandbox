@@ -1,0 +1,10 @@
+spring:
+  cloud:
+    azure:
+      active-directory:
+        enabled: true
+        profile:
+          tenant-id: ${AZ_TENANT_ID}
+        credential:
+          client-id: ${AZ_CLIENT_ID}
+          client-secret: ${AZ_CLIENT_SECRET}
