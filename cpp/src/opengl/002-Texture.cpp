@@ -11,6 +11,7 @@
 #include "Mesh.h"
 #include "VertexBufferObject.h"
 #include "FileUtility.h"
+#include "Texture.h"
 
 #pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup")
 
@@ -37,13 +38,20 @@ int main(int argc, char* argv[]) {
 		return -1;
 	}
 
-	loadShaderProgram(shaderProgramId, "../data/shader/glsl/simple.vert", "../data/shader/glsl/simple.frag");
+	loadShaderProgram(shaderProgramId, "../data/shader/glsl/model-v1.vert", "../data/shader/glsl/model-v1.frag");
 	glUseProgram(shaderProgramId);
 
 	auto sptrMesh = createCube();
 	auto renderFlag = (VBO_VERTEX | VBO_NORMAL | VBO_TEXCOORD);
 	createVAO(*sptrMesh.get(), meshVAO, meshVBOs, renderFlag);
 
+
+	// NEW: Load & bind texture
+	GLuint textureId = loadTextureFile("../data/texture/brick.jpg");
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, textureId);
+	// End NEW 
 
 	//Initialize SDL
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
@@ -52,7 +60,7 @@ int main(int argc, char* argv[]) {
 		return -1;
 	}
 
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	bool quit = false;
 	SDL_Event e;
@@ -81,6 +89,12 @@ int main(int argc, char* argv[]) {
 	}
 
 	//Cleanup GL objects
+
+	//NEW: Unload Texture
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glDeleteTextures(1, &textureId);
+	//End NEW
+
 	glDeleteBuffers(4, meshVBOs);
 	glDeleteVertexArrays(1, &meshVAO);
 	glDeleteProgram(shaderProgramId);

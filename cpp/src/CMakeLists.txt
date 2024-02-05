@@ -15,8 +15,8 @@ add_executable(DataStructures-Vectors datastructures/Vectors.cpp)
 add_executable(RAII-Pointers raii/Pointers.cpp)
 
 set (OPENGL_COMMON_SRC 
-		opengl/Mesh.h opengl/Cube.cpp opengl/Triangle.cpp opengl/Square.cpp		
-		opengl/Shader.h opengl/Shader.cpp opengl/VertexBufferObject.h opengl/VertexBufferObject.cpp
+		opengl/Mesh.h opengl/Cube.cpp opengl/Triangle.cpp opengl/Square.cpp 
+		opengl/Shader.h opengl/Shader.cpp opengl/VertexBufferObject.h opengl/VertexBufferObject.cpp opengl/Texture.h opengl/Texture.cpp
 		opengl/FileUtility.h opengl/FileUtility.cpp		
 	)
 

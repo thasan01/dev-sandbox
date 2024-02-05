@@ -52,7 +52,7 @@ void attachShader(GLuint programId, GLuint shaderId, const std::string& shaderNa
 		glGetShaderInfoLog(shaderId, buffer_length, &buffer_length, &buffer[0]);
 
 		errorss << "Encountered error in ShaderLog: " << shaderName << std::endl << buffer << std::endl;
-		throw errorss.str();
+		throw errorss.str().c_str();
 	}
 
 }
