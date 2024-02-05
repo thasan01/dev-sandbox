@@ -1,0 +1,56 @@
+{
+  "dependencies": [
+    {
+      "name": "bullet3"
+    },
+    {
+      "name": "glew"
+    },
+    {
+      "name": "glm"
+    },
+    {
+      "name": "gtest"
+    },
+    {
+      "name": "opengl"
+    },
+    {
+      "name": "sdl2"
+    },
+    {
+      "name": "freeimage"
+    }
+  ],
+  "overrides": [
+    {
+      "name": "bullet3",
+      "version": "3.17"
+    },
+    {
+      "name": "glew",
+      "version": "2.2.0#3"
+    },
+    {
+      "name": "glm",
+      "version": "0.9.9.8#1"
+    },
+    {
+      "name": "gtest",
+      "version": "1.14.0"
+    },
+    {
+      "name": "opengl",
+      "version": "0.0#8"
+    },
+    {
+      "name": "sdl2",
+      "version": "2.0.14#4"
+    },
+    {
+      "name": "freeimage",
+	  "version" : "3.18.0#25"
+    }
+  ],
+  "builtin-baseline": "80403036a665cb8fcc1a1b3e17593d20b03b2489"
+}
