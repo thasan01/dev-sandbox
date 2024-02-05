@@ -60,8 +60,6 @@ int main(int argc, char* argv[]) {
 		return -1;
 	}
 
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
 	bool quit = false;
 	SDL_Event e;
 
