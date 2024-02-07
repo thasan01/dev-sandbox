@@ -30,6 +30,14 @@ set (OPENGL_COMMON_LIB
 add_executable(OpenGL-001-HelloTriangle opengl/001-HelloTri.cpp ${OPENGL_COMMON_SRC})	
 target_link_libraries(OpenGL-001-HelloTriangle PRIVATE ${OPENGL_COMMON_LIB} )
 
-#OpenGL-001-HelloTriangle 
+#OpenGL-002-Texture 
 add_executable(OpenGL-002-Texture opengl/002-Texture.cpp ${OPENGL_COMMON_SRC})	
 target_link_libraries(OpenGL-002-Texture PRIVATE ${OPENGL_COMMON_LIB} )
+
+#OpenGL-003-Camera
+add_executable(OpenGL-003-Camera opengl/003-Camera.cpp ${OPENGL_COMMON_SRC})	
+target_link_libraries(OpenGL-003-Camera PRIVATE ${OPENGL_COMMON_LIB} )
+
+#OpenGL-004-Pong-Lighting
+add_executable(OpenGL-004-Pong-Lighting opengl/004-PongLighting.cpp ${OPENGL_COMMON_SRC})	
+target_link_libraries(OpenGL-004-Pong-Lighting PRIVATE ${OPENGL_COMMON_LIB} )
