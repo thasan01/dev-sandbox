@@ -19,6 +19,8 @@
 	
 	<properties>
 		<spring-boot.repackage.skip>false</spring-boot.repackage.skip>
+		<maven.compiler.target>17</maven.compiler.target>
+    	<maven.compiler.source>17</maven.compiler.source>
 	</properties>
 
   <dependencies>
@@ -140,6 +142,19 @@
 	    <groupId>javax.servlet</groupId>
 	    <artifactId>jstl</artifactId>
 	</dependency>
+	
+	<!-- SCIM2 -->
+	<dependency>
+	    <groupId>com.bettercloud</groupId>
+	    <artifactId>spring-boot-starter-scim2</artifactId>
+	    <version>1.0.0</version>
+	</dependency>
+
+	<dependency>
+	    <groupId>com.bettercloud</groupId>
+	    <artifactId>scim2-sdk-common</artifactId>
+	    <version>1.0.0</version>
+	</dependency>	
 	
   </dependencies>
   

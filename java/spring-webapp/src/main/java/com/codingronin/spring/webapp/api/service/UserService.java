@@ -11,6 +11,8 @@ public interface UserService {
 
   public User getUser(String userName);
 
+  public User getUser(Integer id);
+
   public List<User> getUsers(int page, int size);
 
   public List<User> createUsers(List<CreateUser> users);

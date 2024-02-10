@@ -55,6 +55,11 @@ public class DbUserService implements UserService {
   }
 
   @Override
+  public User getUser(Integer id) {
+    return userRepo.findById(id).orElse(null);
+  }
+
+  @Override
   public List<User> getUsers(int page, int size) {
     return toList(userRepo.findAll(PageRequest.of(page, size)));
   }
@@ -233,6 +238,5 @@ public class DbUserService implements UserService {
 
     user.setDirectPermissions(userPermissions);
   }
-
 
 }
