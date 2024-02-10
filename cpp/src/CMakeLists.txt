@@ -15,7 +15,7 @@ add_executable(DataStructures-Vectors datastructures/Vectors.cpp)
 add_executable(RAII-Pointers raii/Pointers.cpp)
 
 set (OPENGL_COMMON_SRC 
-		opengl/Mesh.h opengl/Cube.cpp opengl/Triangle.cpp opengl/Square.cpp 
+		opengl/Mesh.h opengl/Cube.cpp opengl/Triangle.cpp opengl/Square.cpp opengl/Camera.h opengl/Camera.cpp 
 		opengl/Shader.h opengl/Shader.cpp opengl/VertexBufferObject.h opengl/VertexBufferObject.cpp opengl/Texture.h opengl/Texture.cpp
 		opengl/FileUtility.h opengl/FileUtility.cpp		
 	)
@@ -34,10 +34,10 @@ target_link_libraries(OpenGL-001-HelloTriangle PRIVATE ${OPENGL_COMMON_LIB} )
 add_executable(OpenGL-002-Texture opengl/002-Texture.cpp ${OPENGL_COMMON_SRC})	
 target_link_libraries(OpenGL-002-Texture PRIVATE ${OPENGL_COMMON_LIB} )
 
-#OpenGL-003-Camera
-add_executable(OpenGL-003-Camera opengl/003-Camera.cpp ${OPENGL_COMMON_SRC})	
-target_link_libraries(OpenGL-003-Camera PRIVATE ${OPENGL_COMMON_LIB} )
+#OpenGL-003-FixedCamera
+add_executable(OpenGL-003-FixedCamera opengl/003-FixedCamera.cpp ${OPENGL_COMMON_SRC})	
+target_link_libraries(OpenGL-003-FixedCamera PRIVATE ${OPENGL_COMMON_LIB} )
 
-#OpenGL-004-Pong-Lighting
-add_executable(OpenGL-004-Pong-Lighting opengl/004-PongLighting.cpp ${OPENGL_COMMON_SRC})	
-target_link_libraries(OpenGL-004-Pong-Lighting PRIVATE ${OPENGL_COMMON_LIB} )
+#OpenGL-004-FreeCamera
+add_executable(OpenGL-004-FreeCamera opengl/004-FreeCamera.cpp ${OPENGL_COMMON_SRC})	
+target_link_libraries(OpenGL-004-FreeCamera PRIVATE ${OPENGL_COMMON_LIB} )
