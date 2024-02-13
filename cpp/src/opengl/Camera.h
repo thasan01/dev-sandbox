@@ -12,12 +12,13 @@ class Camera {
 
 		void moveForward(float amount);
 		void moveForward(const glm::vec3& amount);
+		void moveUp(float amount);
 		void strafe(float amount);
 
 		void pan(float pitch, float yaw, float roll);
 		void orbit(float pitch, float yaw );
 
-		const glm::mat4& calculateViewMatrix();
+		glm::mat4 calculateViewMatrix() const;
 	
 	private:
 

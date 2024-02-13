@@ -75,6 +75,17 @@ void processInput(float dt) {
 		moved = true;
 	}
 
+	if (keystate[SDL_SCANCODE_Q])
+	{
+		move[1] += MOVE_SPEED * dt;
+		moved = true;
+	}
+	else if (keystate[SDL_SCANCODE_E])
+	{
+		move[1] -= MOVE_SPEED * dt;
+		moved = true;
+	}
+
 
 	if (keystate[SDL_SCANCODE_UP]) {
 		turn[0] = TURN_SPEED * dt;
@@ -100,7 +111,8 @@ void processInput(float dt) {
 		camera.pan(turn[0], turn[1], 0);
 
 	if (moved) {
-		camera.moveForward(glm::vec3(0,0,move[2]));
+		camera.moveForward(glm::vec3(move[2],0,move[2]));
+		camera.moveUp(move[1]);
 		camera.strafe(move[0]);
 	}
 

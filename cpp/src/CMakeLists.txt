@@ -26,6 +26,11 @@ set (OPENGL_COMMON_LIB
 		freeimage::FreeImage freeimage::FreeImagePlus
 	)
 
+#OpenGL-A01-Matrix 
+add_executable(OpenGL-A01-Matrix opengl/A01-Matrix.cpp)	
+target_link_libraries(OpenGL-A01-Matrix PRIVATE ${OPENGL_COMMON_LIB} )
+
+
 #OpenGL-001-HelloTriangle 
 add_executable(OpenGL-001-HelloTriangle opengl/001-HelloTri.cpp ${OPENGL_COMMON_SRC})	
 target_link_libraries(OpenGL-001-HelloTriangle PRIVATE ${OPENGL_COMMON_LIB} )

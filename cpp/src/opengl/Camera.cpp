@@ -15,7 +15,12 @@ void Camera::setUp(const glm::vec3& position, const glm::vec3& front, const glm:
 
 void Camera::orbit(float pitch, float yaw)
 {
-	//TODO: implement later
+	glm::mat4 rot(1.0f);
+	rot = glm::rotate(rot, glm::radians(pitch), m_left);
+	rot = glm::rotate(rot, glm::radians(yaw), m_up);
+	auto temp = m_position - m_front;
+	m_position = (temp * glm::mat3(rot)) + m_front;
+
 }
 
 void Camera::pan(float pitch, float yaw, float roll)
@@ -37,6 +42,10 @@ void Camera::moveForward(const glm::vec3& amount)
 	m_position += m_front * amount;
 }
 
+void Camera::moveUp(float amount) {
+	m_position += m_up * amount;
+}
+
 
 void Camera::strafe(float amount)
 {
@@ -44,7 +53,7 @@ void Camera::strafe(float amount)
 }
 
 
-const glm::mat4& Camera::calculateViewMatrix()
+glm::mat4 Camera::calculateViewMatrix() const
 {	
 	return glm::lookAt(m_position, m_position + m_front, m_up);
 }
