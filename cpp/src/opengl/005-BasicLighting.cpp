@@ -71,6 +71,29 @@ int main(int argc, char* argv[]) {
 	int locProjectionMatrix = glGetUniformLocation(shaderProgramId, "u_projection");
 	int locViewPosition = glGetUniformLocation(shaderProgramId, "u_viewPosition");
 
+	//material shader locations
+	int locMatAmbient = glGetUniformLocation(shaderProgramId, "material.ambient");
+	int locMatDiffuse = glGetUniformLocation(shaderProgramId, "material.diffuse");
+	int locMatSpecular = glGetUniformLocation(shaderProgramId, "material.specular");
+	int locMatShininess = glGetUniformLocation(shaderProgramId, "material.shininess");
+
+	glUniform3fv(locMatAmbient, 1, glm::value_ptr(glm::vec3(1.0f, 0.5f, 0.31f)));
+	glUniform3fv(locMatDiffuse, 1, glm::value_ptr(glm::vec3(1.0f, 0.5f, 0.31f)));
+	glUniform3fv(locMatSpecular, 1, glm::value_ptr(glm::vec3(0.5f, 0.5f, 0.5f)));
+	glUniform1f(locMatShininess, 32.0f);
+
+	//light shader locations
+	int locLightAmbient = glGetUniformLocation(shaderProgramId, "light.ambient");
+	int locLightDiffuse = glGetUniformLocation(shaderProgramId, "light.diffuse");
+	int locLightSpecular = glGetUniformLocation(shaderProgramId, "light.specular");
+	int locLightPosition = glGetUniformLocation(shaderProgramId, "light.position");
+
+	glUniform3fv(locLightAmbient, 1, glm::value_ptr(glm::vec3(0.2f, 0.2f, 0.2f)));
+	glUniform3fv(locLightDiffuse, 1, glm::value_ptr(glm::vec3(0.5f, 0.5f, 0.5f)));
+	glUniform3fv(locLightSpecular, 1, glm::value_ptr(glm::vec3(1.0f, 1.0f, 1.0f)));
+	glUniform3fv(locLightPosition, 1, glm::value_ptr(glm::vec3(10.0f, 10.0f, -10.0f)));
+
+	//
 	glUniformMatrix4fv(locModelMatrix, 1, GL_FALSE, glm::value_ptr(model));
 	glUniformMatrix4fv(locProjectionMatrix, 1, GL_FALSE, glm::value_ptr(projection));
 	//END NEW
