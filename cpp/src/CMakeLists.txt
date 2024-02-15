@@ -17,7 +17,8 @@ add_executable(RAII-Pointers raii/Pointers.cpp)
 set (OPENGL_COMMON_SRC 
 		opengl/Mesh.h opengl/Cube.cpp opengl/Triangle.cpp opengl/Square.cpp opengl/Camera.h opengl/Camera.cpp 
 		opengl/Shader.h opengl/Shader.cpp opengl/VertexBufferObject.h opengl/VertexBufferObject.cpp opengl/Texture.h opengl/Texture.cpp
-		opengl/FileUtility.h opengl/FileUtility.cpp		
+		opengl/FileUtility.h opengl/FileUtility.cpp	
+		opengl/ProcessKey.h opengl/ProcessKey.cpp
 	)
 
 set (OPENGL_COMMON_LIB 
@@ -46,3 +47,7 @@ target_link_libraries(OpenGL-003-FixedCamera PRIVATE ${OPENGL_COMMON_LIB} )
 #OpenGL-004-FreeCamera
 add_executable(OpenGL-004-FreeCamera opengl/004-FreeCamera.cpp ${OPENGL_COMMON_SRC})	
 target_link_libraries(OpenGL-004-FreeCamera PRIVATE ${OPENGL_COMMON_LIB} )
+
+#OpenGL-005-BasicLighting
+add_executable(OpenGL-005-BasicLighting opengl/005-BasicLighting.cpp ${OPENGL_COMMON_SRC})	
+target_link_libraries(OpenGL-005-BasicLighting PRIVATE ${OPENGL_COMMON_LIB} )

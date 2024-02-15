@@ -7,6 +7,9 @@ class Camera {
 	public:
 
 		Camera(const glm::vec3& position, const glm::vec3& front, const glm::vec3& up);
+		const glm::vec3& getPosition() const { return  m_position; }
+		const glm::vec3& getFront() const { return  m_front; }
+		const glm::vec3& getUp() const { return m_up; }
 
 		void setUp(const glm::vec3& position, const glm::vec3& front, const glm::vec3& up);
 
