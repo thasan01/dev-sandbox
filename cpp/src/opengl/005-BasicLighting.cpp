@@ -71,6 +71,9 @@ int main(int argc, char* argv[]) {
 	int locProjectionMatrix = glGetUniformLocation(shaderProgramId, "u_projection");
 	int locViewPosition = glGetUniformLocation(shaderProgramId, "u_viewPosition");
 
+	glUniformMatrix4fv(locModelMatrix, 1, GL_FALSE, glm::value_ptr(model));
+	glUniformMatrix4fv(locProjectionMatrix, 1, GL_FALSE, glm::value_ptr(projection));
+
 	//material shader locations
 	int locMatAmbient = glGetUniformLocation(shaderProgramId, "material.ambient");
 	int locMatDiffuse = glGetUniformLocation(shaderProgramId, "material.diffuse");
@@ -92,10 +95,6 @@ int main(int argc, char* argv[]) {
 	glUniform3fv(locLightDiffuse, 1, glm::value_ptr(glm::vec3(0.5f, 0.5f, 0.5f)));
 	glUniform3fv(locLightSpecular, 1, glm::value_ptr(glm::vec3(1.0f, 1.0f, 1.0f)));
 	glUniform3fv(locLightPosition, 1, glm::value_ptr(glm::vec3(10.0f, 10.0f, -10.0f)));
-
-	//
-	glUniformMatrix4fv(locModelMatrix, 1, GL_FALSE, glm::value_ptr(model));
-	glUniformMatrix4fv(locProjectionMatrix, 1, GL_FALSE, glm::value_ptr(projection));
 	//END NEW
 
 	auto sptrMesh = createCube();
@@ -133,11 +132,12 @@ int main(int argc, char* argv[]) {
 		}
 
 		processKeys(dt, camera);
+
 		//NEW:
 		glm::mat4 view = camera.calculateViewMatrix();
 		glUniformMatrix4fv(locViewMatrix, 1, GL_FALSE, glm::value_ptr(view));
 		glUniform3fv(locViewPosition, 1, glm::value_ptr(camera.getPosition()));
-
+		//END NEW
 
 		//=========
 		// Render
