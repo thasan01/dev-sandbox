@@ -53,7 +53,7 @@ loss_fn = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=0.01)
 
 # Train the CNN
-num_epochs = 10
+num_epochs = 20
 stats = Stats(num_epochs=num_epochs, dataset_size=len(train_dataset), batch_size=batch_size, mean=mean, std_dev=std_dev, img_width=img_width, img_height=img_height)
 
 # this is required because the model is using batch normalization & dropout
