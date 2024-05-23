@@ -6,7 +6,7 @@ import torchvision.transforms as tr
 import torchvision.datasets as datasets
 import matplotlib.pyplot as plt
 import importlib
-
+import sys
 
 cnn_module = importlib.import_module("cnn-mnist-model")
 DigitCNN = cnn_module.DigitCNN
@@ -37,7 +37,9 @@ transforms = tr.Compose([tr.ToTensor(), tr.Normalize((mean,), (std_dev,))])
 train_dataset = datasets.MNIST(root="./data", train=True, transform=transforms, download=True)
 test_dataset = datasets.MNIST(root="./data", train=False, transform=transforms, download=True)
 print(f"train_dataset={len(train_dataset)}, test_dataset={len(test_dataset)}")
-# Debug: show_image(train_dataset, 0)
+# Debug:
+show_image(train_dataset, 0)
+sys.exit(1)
 
 batch_size = 100
 train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
@@ -69,6 +71,10 @@ for epoch in range(num_epochs):
         if cuda:
             inputs = inputs.cuda()
             labels = labels.cuda()
+
+        print(f"shape[0]: {inputs[0].shape}")
+        print(f"shape[0]: {inputs[0]}")
+        break
 
         # All Tensors propagated through the network should be a 4D tensor: [batch_size, #channels, #rows, #columns]
         # Labels shape = [100] because there are 100 values in a batch

@@ -6,14 +6,20 @@
 
 <style>
 
+:root {
+  --grid-width: 300px;
+  --grid-height: 300px;
+  --grid-gap: 5px;
+  --grid-columns: 3;
+}
 
 .grid {
   display: grid;
-  gap: 5px;
-  grid-template-columns: repeat(3, 1fr);
+  gap: var(--grid-gap);
+  grid-template-columns: repeat(var(--grid-columns), 1fr);
   background-color: #181818;
-  width: 300px;
-  height: 300px;
+  width: var(--grid-width);
+  height: var(--grid-height);
   
 }
 
@@ -24,7 +30,7 @@ div.grid > div {
   color: #A8A8A8;
   font-size: 32px;
   font-weight: bolder;
-  height: 95px; /* grid_height / num_rows - gap => (300 / 3) - 5 */
+  height: calc( (var(--grid-height) / var(--grid-columns)) - var(--grid-gap) );
 }
 
 
