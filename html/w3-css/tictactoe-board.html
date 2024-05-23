@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<title>W3.CSS</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="w3css_4_w3.css">
+
+<style>
+
+
+.grid {
+  display: grid;
+  gap: 5px;
+  grid-template-columns: repeat(3, 1fr);
+  background-color: #181818;
+  width: 300px;
+  height: 300px;
+  
+}
+
+div.grid > div {
+  padding: 25%;
+  background-color: #2B2B2B;
+  text-align: center;
+  color: #A8A8A8;
+  font-size: 32px;
+  font-weight: bolder;
+  height: 95px; /* grid_height / num_rows - gap => (300 / 3) - 5 */
+}
+
+
+</style>
+
+<body>
+
+  <div class="grid">
+    <div id="cell-0" cell=0></div>
+    <div id="cell-1" cell=1></div>
+    <div id="cell-2" cell=2></div>
+
+    <div id="cell-3" cell=3></div>
+    <div id="cell-4" cell=4></div>
+    <div id="cell-5" cell=5></div>
+
+    <div id="cell-6" cell=6></div>
+    <div id="cell-7" cell=7></div>
+    <div id="cell-8" cell=8></div>
+  </div>
+  <br/>
+  <button id="reset-game">Reset Game</button>
+
+<script>
+  playerId = 0;
+  playerSymbol = ["X","O"];
+  document.querySelectorAll("div.grid > div").forEach(
+    cell => cell.addEventListener("click", ({target})=>{
+          const cell = target.attributes.cell
+          if(!target.innerHTML)
+            target.innerHTML = playerSymbol[playerId];
+            playerId = (playerId + 1) % 2;
+        })
+  );
+  
+  document.querySelector("#reset-game").addEventListener("click",
+    () => {
+      document.querySelectorAll("div.grid > div").forEach(
+        cell => {cell.innerHTML = ""});
+    }
+  );
+
+</script>
+
+</body>
+</html>
