@@ -1,0 +1,43 @@
+docker build -t lua . 
+
+
+docker run -it v "$PWD":/lua-scripts:ro --name luadev lua 
+docker start luadev
+
+docker exec -it luadev sh
+
+docker cp luadev:tmp ./socket-client.lua
+
+
+docker run -it --name luadev --rm akorn/luarocks:lua5.4-alpine
+
+------------
+
+apk add --virtual .build-deps  curl gcc g++ libc-dev make readline-dev unzip openssl
+
+#install lua
+wget http://www.lua.org/ftp/lua-${LUA_VERSION}.tar.gz
+tar zxf lua-${LUA_VERSION}.tar.gz
+cd lua-${LUA_VERSION}
+#build lua
+make -j $(getconf _NPROCESSORS_ONLN) linux
+make install
+cd /
+
+# install luarocks
+wget https://luarocks.org/releases/luarocks-${LUAROCKS_VERSION}.tar.gz
+tar zxf luarocks-${LUAROCKS_VERSION}.tar.gz
+#build
+cd luarocks-${LUAROCKS_VERSION}
+./configure
+make -j $(getconf _NPROCESSORS_ONLN) build
+make install
+luarocks install luasocket
+cd /
+
+#cleanup
+rm -f lua-${LUA_VERSION}.tar.gz
+rm -rf lua-${LUA_VERSION}
+rm -f luarocks-${LUAROCKS_VERSION}.tar.gz
+rm -rf luarocks-${LUAROCKS_VERSION}
+apk del .build-deps
