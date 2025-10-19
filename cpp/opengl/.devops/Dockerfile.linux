@@ -1,0 +1,31 @@
+FROM ubuntu:24.04
+
+ENV DEBIAN_FRONTEND=noninteractive 
+ENV TZ=America/New_York
+ENV VCPKG_ROOT="/opt/vcpkg"
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    build-essential \
+    cmake \
+    gdb \
+    git \
+    curl \
+    unzip \
+    zip \
+    ca-certificates \
+    # --- CRITICAL ADDITIONS FOR VCPKG/SDL2/GLEW ---   
+    pkg-config \ 
+    libxmu-dev \
+    libxi-dev \
+    libgl-dev \ 
+    # --- CRITICAL ADDITIONS FOR GLu.h ---
+    libglu1-mesa-dev \ 
+    && rm -rf /var/lib/apt/lists/*
+
+RUN git clone https://github.com/Microsoft/vcpkg.git /opt/vcpkg
+
+RUN /opt/vcpkg/bootstrap-vcpkg.sh -disableMetrics
+RUN ln -s /opt/vcpkg/vcpkg /usr/local/bin/vcpkg
+WORKDIR /opt/sandbox
+
