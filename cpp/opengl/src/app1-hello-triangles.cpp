@@ -4,8 +4,6 @@
 #endif
 
 #include <SDL2/SDL.h>
-
-// The primary header for modern OpenGL applications using GLEW:
 #include <GL/glew.h> 
 
 // C++ math headers:
@@ -21,7 +19,6 @@
 #include <vector>
 #include <map>
 #include <fstream>
-// --- END UPDATED INCLUDES ---
 
 #define ss() std::ostringstream().flush()
 

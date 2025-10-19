@@ -6,7 +6,7 @@ set(VCPKG_MANIFEST_MODE ON)
 # If you are passing the toolchain via the command line (which you are with 
 # the preset in your history), you don't strictly need this line here.
 
-project(opengl-demo)
+project(opengl-sandbox)
 set(CMAKE_CXX_STANDARD 20) # Enable c++20 standard
 
 # 1. FIND PACKAGES: These are correct. Vcpkg ensures these modules are found.
@@ -17,14 +17,9 @@ find_package(SDL2 CONFIG REQUIRED)
 # 2. DEFINE LIBRARIES: This is where you remove the Windows names.
 #    The Vcpkg targets (GLEW::GLEW, glm::glm, SDL2::SDL2, etc.) 
 #    automatically resolve to the correct library files on Windows, Linux, and macOS.
-set (OPENGL_COMMON_LIB 
- GLEW::GLEW 
-        glm::glm
- SDL2::SDL2main 
-        SDL2::SDL2 
- )
+set (OPENGL_COMMON_LIB GLEW::GLEW glm::glm SDL2::SDL2main SDL2::SDL2 )
 
-add_executable(APP app.cpp )
+add_executable(app1 app.cpp )
 
 # 3. LINK LIBRARIES: Link the modern, cross-platform targets.
-target_link_libraries(APP PRIVATE ${OPENGL_COMMON_LIB} )
+target_link_libraries(app1 PRIVATE ${OPENGL_COMMON_LIB} )
