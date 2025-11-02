@@ -19,7 +19,7 @@ find_package(SDL2 CONFIG REQUIRED)
 #    automatically resolve to the correct library files on Windows, Linux, and macOS.
 set (OPENGL_COMMON_LIB GLEW::GLEW glm::glm SDL2::SDL2main SDL2::SDL2 )
 
-add_executable(app1 app.cpp )
+add_executable(app1 app1-hello-triangles.cpp )
 
 # 3. LINK LIBRARIES: Link the modern, cross-platform targets.
 target_link_libraries(app1 PRIVATE ${OPENGL_COMMON_LIB} )
