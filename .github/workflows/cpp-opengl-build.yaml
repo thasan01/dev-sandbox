@@ -1,0 +1,60 @@
+name: Build C++ Project
+
+on:
+  push:
+    paths:
+      - 'cpp/opengl/**'
+  workflow_dispatch: # Allows triggering from REST endpoint
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set Environment Variables
+        run: |
+          echo "DEBIAN_FRONTEND=noninteractive" >> $GITHUB_ENV
+          echo "TZ=America/New_York" >> $GITHUB_ENV
+          echo "VCPKG_ROOT=/opt/vcpkg" >> $GITHUB_ENV
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential \
+            cmake \
+            gdb \
+            git \
+            curl \
+            unzip \
+            zip \
+            ca-certificates \
+            pkg-config \
+            libxmu-dev \
+            libxi-dev \
+            libgl-dev \
+            libglu1-mesa-dev \
+          && sudo rm -rf /var/lib/apt/lists/*
+
+      - name: Clone vcpkg
+        run: git clone https://github.com/Microsoft/vcpkg.git $VCPKG_ROOT
+
+      - name: Bootstrap vcpkg
+        run: |
+          cd $VCPKG_ROOT
+          ./bootstrap-vcpkg.sh -disableMetrics
+          sudo ln -s $VCPKG_ROOT/vcpkg /usr/local/bin/vcpkg
+
+      - name: Install dependencies
+        run: |
+          cd $GITHUB_WORKSPACE
+          vcpkg install  # Installs from vcpkg.json
+
+      - name: Build project
+        run: |
+          cd cpp\opengl
+          cmake -S src -B build --preset debug
+          cmake --build build --config Debug

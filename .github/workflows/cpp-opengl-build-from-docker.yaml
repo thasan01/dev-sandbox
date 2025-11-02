@@ -3,7 +3,7 @@ name: Build and Release
 on:
   push:
     paths:
-      - 'cpp/opengl/**'
+      - '**REMOVE**TO**ENABLE**/cpp/opengl/**'
   workflow_dispatch: # Allows triggering from REST endpoint
 
 jobs:
