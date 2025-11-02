@@ -17,17 +17,19 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
         
-      - name: Build Docker image
+      - name: Build and Run CMake in Docker
         run: |
           cd cpp/opengl
           docker build -t cpp-opengl -f .devops/Dockerfile.linux .
+          docker run --rm -v ${{ github.workspace }}/cpp/opengl/build:/build cpp-opengl cmake -S /src -B /build --preset debug
           
       - name: Create Release
         id: create_release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: 'v1.0.0' # You can set this dynamically as needed
+          tag_name: 'v1.0.0' # Modify based on your versioning strategy
           release_name: 'Release v1.0.0'
+          files: cpp/opengl/build/** # Includes all files from the build directory
           draft: false
           prerelease: false
         env:
