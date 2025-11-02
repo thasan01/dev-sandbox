@@ -46,7 +46,9 @@ jobs:
         run: |
           cd $VCPKG_ROOT
           ./bootstrap-vcpkg.sh -disableMetrics
-          sudo ln -s $VCPKG_ROOT/vcpkg /usr/local/bin/vcpkg
+          if [ ! -e /usr/local/bin/vcpkg ]; then
+            sudo ln -s $VCPKG_ROOT/vcpkg /usr/local/bin/vcpkg
+          fi
 
       - name: Install dependencies
         run: |
@@ -55,6 +57,6 @@ jobs:
 
       - name: Build project
         run: |
-          cd cpp\opengl
+          cd cpp/opengl
           cmake -S src -B build --preset debug
           cmake --build build --config Debug
