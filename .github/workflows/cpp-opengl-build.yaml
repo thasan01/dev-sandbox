@@ -50,6 +50,9 @@ jobs:
             sudo ln -s $VCPKG_ROOT/vcpkg /usr/local/bin/vcpkg
           fi
 
+      - name: List source files
+        run: ls $GITHUB_WORKSPACE/cpp/opengl/src
+
       - name: Build project
         run: |
           cd $GITHUB_WORKSPACE/cpp/opengl
