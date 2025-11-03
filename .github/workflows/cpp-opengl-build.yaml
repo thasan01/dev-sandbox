@@ -64,6 +64,6 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v1.0.0
-          files: cpp/opengl/build/**  # Adjust the path as necessary
+          files: cpp/opengl/build/app*  # Adjust the path as necessary
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
