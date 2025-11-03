@@ -58,3 +58,12 @@ jobs:
           cd $GITHUB_WORKSPACE/cpp/opengl
           cmake -S src -B build --preset debug
           cmake --build build --config Debug
+
+      # Step to upload the build artifacts
+      - name: Upload Build Artifacts
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v1.0.0
+          files: cpp/opengl/build/**  # Adjust the path as necessary
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
