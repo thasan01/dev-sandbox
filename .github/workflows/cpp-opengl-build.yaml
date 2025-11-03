@@ -1,4 +1,4 @@
-name: Build C++ Project
+name: C++ OpenGL Build
 
 on:
   push:
@@ -50,20 +50,39 @@ jobs:
             sudo ln -s $VCPKG_ROOT/vcpkg /usr/local/bin/vcpkg
           fi
 
-      - name: List source files
-        run: ls $GITHUB_WORKSPACE/cpp/opengl/src
+      - name: Install dependencies
+        run: |
+          cd $GITHUB_WORKSPACE
+          vcpkg install  # Installs from vcpkg.json
 
       - name: Build project
         run: |
-          cd $GITHUB_WORKSPACE/cpp/opengl
+          cd cpp/opengl
           cmake -S src -B build --preset debug
           cmake --build build --config Debug
 
-      # Step to upload the build artifacts
-      - name: Upload Build Artifacts
+      - name: Create zip file
+        run: |
+          cd cpp/opengl
+          zip -r release.zip build/app* data
+
+      # Step to create a GitHub Release
+      - name: Create Release
+        id: create_release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: v1.0.0
-          files: cpp/opengl/build/app*  # Adjust the path as necessary
+          tag_name: v1.0.0  # Change tag name as needed
+          release_name: Release v1.0.0  # Change release name as needed
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Step to upload the zip file as a release asset
+      - name: Upload Release Asset
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v1.0.0  # Ensure this matches the tag
+          files: cpp/opengl/release.zip  # Specify the zip file path
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
