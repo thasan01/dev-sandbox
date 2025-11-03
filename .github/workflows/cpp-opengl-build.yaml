@@ -69,8 +69,8 @@ jobs:
         id: create_release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: v1.0.0  # Change tag name as needed
-          release_name: Release v1.0.0  # Change release name as needed
+          tag_name: ${{ env.TAG_NAME }}  # Use the unique tag
+          release_name: Release ${{ env.TAG_NAME }} 
           draft: false
           prerelease: false
         env:
@@ -80,7 +80,7 @@ jobs:
       - name: Upload Release Asset
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: v1.0.0  # Ensure this matches the tag
+          tag_name: ${{ env.TAG_NAME }}  # Ensure this matches the tag
           files: cpp/opengl/release.zip  # Specify the zip file path
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
