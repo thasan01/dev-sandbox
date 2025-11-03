@@ -50,14 +50,12 @@ jobs:
             sudo ln -s $VCPKG_ROOT/vcpkg /usr/local/bin/vcpkg
           fi
 
-      - name: Install dependencies
-        run: |
-          cd $GITHUB_WORKSPACE
-          vcpkg install  # Installs from vcpkg.json
+      - name: List source files
+        run: ls $GITHUB_WORKSPACE/cpp/opengl/src
 
       - name: Build project
         run: |
-          cd cpp/opengl
+          cd $GITHUB_WORKSPACE/cpp/opengl
           cmake -S src -B build --preset debug
           cmake --build build --config Debug
 
