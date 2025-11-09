@@ -12,40 +12,9 @@
 #include <glm/gtc/type_ptr.hpp>
 
 // Standard C++ headers:
-#include <iostream>
-#include <string>
-#include <memory>
-#include <sstream>
-#include <vector>
-#include <map>
-#include <fstream>
-
-#define ss() std::ostringstream().flush()
-
-int popupErrorMessage(std::ostream& titleStream, std::ostream& messageStream, SDL_Window* parentWindow = NULL)
-{
-	std::string title = dynamic_cast<std::ostringstream&>(titleStream).str();
-	std::string message = dynamic_cast<std::ostringstream&>(messageStream).str();
-	return SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, title.c_str(), message.c_str(), parentWindow);
-}
-
-bool loadTextFromFile(const std::string& filename, std::string& source)
-{
-	std::stringstream ss;
-
-	std::string line;
-	std::ifstream rfile;
-	rfile.open(filename);
-	if (rfile.is_open()) {
-		while (std::getline(rfile, line)) {
-			ss << line << std::endl;
-		}
-		rfile.close();
-		source = ss.str();
-		return true;
-	}
-	return false;
-}
+#include "./shared/shapes.h"
+#include "./shared/fileutil.h"
+#include "./shared/winutil.h"
 
 void initGL()
 {
@@ -60,106 +29,7 @@ void initGL()
 	glClearDepth(1.0);
 }
 
-void createVAO(GLuint& vao, GLuint vbo[], int& numTriIndices) {
-
-	int numVertices = 24;
-	numTriIndices = 12;
-
-	float vertices[] = {
-		-0.5, -0.5, -0.5,
-		0.5, -0.5, -0.5,
-		0.5, 0.5, -0.5,
-		-0.5, 0.5, -0.5,
-		-0.5, -0.5, 0.5,
-		-0.5, 0.5, 0.5,
-		0.5, 0.5, 0.5,
-		0.5, -0.5, 0.5,
-		-0.5, -0.5, 0.5,
-		-0.5, -0.5, -0.5,
-		-0.5, 0.5, -0.5,
-		-0.5, 0.5, 0.5,
-		0.5, -0.5, 0.5,
-		0.5, 0.5, 0.5,
-		0.5, 0.5, -0.5,
-		0.5, -0.5, -0.5,
-		-0.5, 0.5, -0.5,
-		0.5, 0.5, -0.5,
-		0.5, 0.5, 0.5,
-		-0.5, 0.5, 0.5,
-		-0.5, -0.5, -0.5,
-		-0.5, -0.5, 0.5,
-		0.5, -0.5, 0.5,
-		0.5, -0.5, -0.5,
-	};
-
-	float normals[] = {
-		0, 0, -1,
-			0, 0, -1,
-			0, 0, -1,
-			0, 0, -1,
-			0, 0, 1,
-			0, 0, 1,
-			0, 0, 1,
-			0, 0, 1,
-			-1, 0, 0,
-			-1, 0, 0,
-			-1, 0, 0,
-			-1, 0, 0,
-			1, 0, 0,
-			1, 0, 0,
-			1, 0, 0,
-			1, 0, 0,
-			0, 1, 0,
-			0, 1, 0,
-			0, 1, 0,
-			0, 1, 0,
-			0, -1, 0,
-			0, -1, 0,
-			0, -1, 0,
-			0, -1, 0,
-	};
-
-	float texcoords[] = {
-		0, 0,
-		1, 0,
-		1, 1,
-		0, 1,
-		0, 0,
-		0, 1,
-		1, 1,
-		1, 0,
-		0, 0,
-		1, 0,
-		1, 1,
-		0, 1,
-		0, 0,
-		0, 1,
-		1, 1,
-		1, 0,
-		0, 0,
-		1, 0,
-		1, 1,
-		0, 1,
-		0, 0,
-		0, 1,
-		1, 1,
-		1, 0,
-	};
-
-	unsigned int triIndices[] = {
-		0, 2, 1,
-		0, 3, 2,
-		4, 6, 5,
-		4, 7, 6,
-		8, 10, 9,
-		8, 11, 10,
-		12, 14, 13,
-		12, 15, 14,
-		16, 18, 17,
-		16, 19, 18,
-		20, 22, 21,
-		20, 23, 22,
-	};
+void createVAO(GLuint& vao, GLuint vbo[]) {
 
 	glGenVertexArrays(1, &vao);
 	glGenBuffers(4, vbo);
@@ -168,9 +38,9 @@ void createVAO(GLuint& vao, GLuint vbo[], int& numTriIndices) {
 	int vertexByteSize = sizeof(float) * 3;
 	int triFaceByteSize = sizeof(unsigned int) * 3;
 
-	int maxVerticiesBytes = vertexByteSize * numVertices;
-	int maxTexcoordBytes = texcoordByteSize * numVertices;
-	int maxTriFacesBytes = triFaceByteSize * numTriIndices;
+	int maxVerticiesBytes = vertexByteSize * cube::numVertices;
+	int maxTexcoordBytes = texcoordByteSize * cube::numVertices;
+	int maxTriFacesBytes = triFaceByteSize * cube::numTriIndices;
 
 	// bind Vertex Array Object
 	glBindVertexArray(vao);
@@ -178,7 +48,7 @@ void createVAO(GLuint& vao, GLuint vbo[], int& numTriIndices) {
 	//Vertex Attribute
 	// copy vertices array in a vertex buffer for OpenGL to use
 	glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
-	glBufferData(GL_ARRAY_BUFFER, maxVerticiesBytes, vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, maxVerticiesBytes, cube::vertices, GL_STATIC_DRAW);
 
 	// set the vertex attributes pointers
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, vertexByteSize, (void*)0);
@@ -187,7 +57,7 @@ void createVAO(GLuint& vao, GLuint vbo[], int& numTriIndices) {
 
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, vbo[1]);
-		glBufferData(GL_ARRAY_BUFFER, maxVerticiesBytes, normals, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, maxVerticiesBytes, cube::normals, GL_STATIC_DRAW);
 
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, vertexByteSize, (void*)0);
 		glEnableVertexAttribArray(1);
@@ -195,7 +65,7 @@ void createVAO(GLuint& vao, GLuint vbo[], int& numTriIndices) {
 
 	{
 		glBindBuffer(GL_ARRAY_BUFFER, vbo[2]);
-		glBufferData(GL_ARRAY_BUFFER, maxTexcoordBytes, texcoords, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, maxTexcoordBytes, cube::texcoords, GL_STATIC_DRAW);
 
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, texcoordByteSize, (void*)0);
 		glEnableVertexAttribArray(2);
@@ -203,7 +73,7 @@ void createVAO(GLuint& vao, GLuint vbo[], int& numTriIndices) {
 
 	// Copy index array in a element buffer for OpenGL to use
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo[3]);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, maxTriFacesBytes, triIndices, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, maxTriFacesBytes, cube::triIndices, GL_STATIC_DRAW);
 }
 
 
@@ -277,10 +147,21 @@ void setupCamera(GLuint programId, int width, int height)
 	glUniformMatrix4fv(locPvm, 1, GL_FALSE, glm::value_ptr(pvm));
 }
 
+void handleKeys(const bool keys_pressed[])
+{
+	if (keys_pressed[SDLK_w])
+		popupErrorMessage(ss() << "KEY Pressed", ss() << "W pressed");
+
+
+}
+
 //==============================
 //  Entrypoint
 //==============================
 int main(int argc, char* argv[]) {
+	#define KEY_SIZE 322
+	bool keys_pressed[KEY_SIZE];
+	for (int i=0; i< KEY_SIZE; i++) keys_pressed[i] = false;
 
 	int x = SDL_WINDOWPOS_CENTERED;
 	int y = SDL_WINDOWPOS_CENTERED;
@@ -307,10 +188,9 @@ int main(int argc, char* argv[]) {
 	glUseProgram(programId);
 	setupCamera(programId, width, height);
 
-	int numTriIndices;
 	GLuint vao, vbo[4];
 	initGL();
-	createVAO(vao, vbo, numTriIndices);	
+	createVAO(vao, vbo);	
 
 	bool quit = false;
 	SDL_Event e;
@@ -320,10 +200,14 @@ int main(int argc, char* argv[]) {
 		while (SDL_PollEvent(&e) != 0)
 		{
 			if (e.type == SDL_QUIT)
-			{
 				quit = true;
-			}
+			else if (e.type == SDL_KEYDOWN)
+				keys_pressed[e.key.keysym.sym] = true;
+			else if (e.type == SDL_KEYUP)
+				keys_pressed[e.key.keysym.sym] = false;
 		}
+
+		handleKeys(keys_pressed);
 
 		//=========
 		// Render
@@ -332,7 +216,7 @@ int main(int argc, char* argv[]) {
 
 		//Render the mesh
 		glBindVertexArray(vao);
-		glDrawElements(GL_TRIANGLES, numTriIndices * 3, GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, cube::numTriIndices * 3, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 
 		SDL_GL_SwapWindow(window);

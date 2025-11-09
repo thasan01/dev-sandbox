@@ -1,85 +1,61 @@
 # escape=`
 
-ARG REPO=mcr.microsoft.com/dotnet/framework/runtime
-FROM $REPO:4.8.1-20251014-windowsservercore-ltsc2022
+# Use the latest Windows Server Core 2022 image.
+#FROM mcr.microsoft.com/windows/servercore:ltsc2022
+FROM mcr.microsoft.com/dotnet/framework/sdk:4.8.1
 
-ENV `
-    # Do not generate certificate
-    DOTNET_GENERATE_ASPNET_CERTIFICATE=false `
-    # Enable correct mode for dotnet watch (only mode supported in a container)
-    DOTNET_USE_POLLING_FILE_WATCHER=true `
-    # NuGet version to install
-    NUGET_VERSION=6.14.0 `
-    # Install location of Roslyn
-    ROSLYN_COMPILER_LOCATION="C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\MSBuild\Current\Bin\Roslyn"
+# Restore the default Windows shell for correct batch processing.
+SHELL ["cmd", "/S", "/C"]
 
-# Install NuGet CLI
-RUN mkdir "%ProgramFiles%\NuGet\latest" `
-    && curl -fSLo "%ProgramFiles%\NuGet\nuget.exe" https://dist.nuget.org/win-x86-commandline/v%NUGET_VERSION%/nuget.exe `
-    && mklink "%ProgramFiles%\NuGet\latest\nuget.exe" "%ProgramFiles%\NuGet\nuget.exe"
+# Install Chocolatey
+RUN powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))"
 
-# Install VS components
-RUN `
-    # Install VS Test Agent
-    curl -fSLo vs_TestAgent.exe https://aka.ms/vs/17/release/vs_TestAgent.exe `
-    && start /w vs_TestAgent --quiet --norestart --nocache --wait --installPath "%ProgramFiles(x86)%\Microsoft Visual Studio\2022\TestAgent" `
-    && powershell -Command "if ($err = dir $Env:TEMP -Filter dd_setup_*_errors.log | where Length -gt 0 | Get-Content) { throw $err }" `
-    && del vs_TestAgent.exe `
-    `
-    # Install VS Build Tools
-    && curl -fSLo vs_BuildTools.exe https://aka.ms/vs/17/release/vs_BuildTools.exe `
-    && start /w vs_BuildTools ^ `
-        --installPath "%ProgramFiles(x86)%\Microsoft Visual Studio\2022\BuildTools" ^ `
-        --add Microsoft.Component.ClickOnce.MSBuild ^ `
-        --add Microsoft.Net.Component.4.8.1.SDK ^ `
-        --add Microsoft.NetCore.Component.Runtime.8.0 ^ `
-        --add Microsoft.NetCore.Component.Runtime.9.0 ^ `
-        --add Microsoft.NetCore.Component.SDK ^ `
-        --add Microsoft.VisualStudio.Component.NuGet.BuildTools ^ `
-        --add Microsoft.VisualStudio.Component.WebDeploy ^ `
-        --add Microsoft.VisualStudio.Web.BuildTools.ComponentGroup ^ `
-        --add Microsoft.VisualStudio.Workload.MSBuildTools ^ `
-        --quiet --norestart --nocache --wait `
-    && powershell -Command "if ($err = dir $Env:TEMP -Filter dd_setup_*_errors.log | where Length -gt 0 | Get-Content) { throw $err }" `
-    && del vs_BuildTools.exe `
-    `
-    # Trigger dotnet first run experience by running arbitrary cmd
-    && "%ProgramFiles%\dotnet\dotnet" help `
-    `
-    # Workaround for issues with 64-bit ngen
-    && %windir%\Microsoft.NET\Framework64\v4.0.30319\ngen uninstall "%ProgramFiles(x86)%\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.8.1 Tools\SecAnnotate.exe" `
-    && %windir%\Microsoft.NET\Framework64\v4.0.30319\ngen uninstall "%ProgramFiles(x86)%\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.8.1 Tools\WinMDExp.exe" `
-    `
-    # ngen assemblies queued by VS installers
-    && %windir%\Microsoft.NET\Framework64\v4.0.30319\ngen update `
-    `
-    # Cleanup
-    && (for /D %i in ("%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\*") do rmdir /S /Q "%i") `
-    && (for %i in ("%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\*") do if not "%~nxi" == "vswhere.exe" del "%~i") `
-    && powershell Remove-Item -Force -Recurse "%TEMP%\*" `
-    && rmdir /S /Q "%ProgramData%\Package Cache"
+# Add Chocolatey to PATH
+RUN setx /M PATH "%PATH%;C:\ProgramData\chocolatey\bin"
 
-# Set PATH in one layer to keep image size down.
-RUN powershell setx /M PATH $(${Env:PATH} `
-    + \";${Env:ProgramFiles}\NuGet\" `
-    + \";${Env:ProgramFiles(x86)}\Microsoft Visual Studio\2022\TestAgent\Common7\IDE\CommonExtensions\Microsoft\TestWindow\" `
-    + \";${Env:ProgramFiles(x86)}\Microsoft Visual Studio\2022\BuildTools\MSBuild\Current\Bin\amd64\" `
-    + \";${Env:ProgramFiles(x86)}\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.8.1 Tools\" `
-    + \";${Env:ProgramFiles(x86)}\Microsoft SDKs\ClickOnce\SignTool\")
+# Install Git and CMake
+RUN choco install -y git cmake --installargs 'ADD_CMAKE_TO_PATH=System'
 
-# Install Targeting Packs
-RUN powershell -Command "`
-    $referenceAssembliesPath = \"${Env:ProgramFiles(x86)}\Reference Assemblies\Microsoft\Framework\"; `
-    New-Item -ItemType Directory -Path ${referenceAssembliesPath}; `
-    foreach ($version in @('net40', 'net45', 'net451', 'net452', 'net46', 'net461', 'net462', 'net47', 'net471', 'net472', 'net48', 'net481')) { `
-        # Download reference assembly NuGet package `
-        $package = \"Microsoft.NETFramework.ReferenceAssemblies.${version}\"; `
-        nuget install \"${package}\" -DirectDownload -ExcludeVersion -Version 1.0.3 -OutputDirectory ${Env:TEMP}\Packages; `
-        $contents = \"${Env:TEMP}\Packages\${package}\build\.NETFramework\"; `
-        # Remove IntelliSense files `
-        Get-ChildItem -File -Recurse -Path \"${contents}\" | `
-            Where-Object { $_.FullName -match '^(?!.*(PermissionSets|RedistList)).*\.xml$' } | `
-            Remove-Item; `
-        Copy-Item -Recurse -Force -Container -Path ${contents} -Destination ${referenceAssembliesPath}; `
-    } `
-    Remove-Item -Force -Recurse ${Env:TEMP}\\*;"
+# Add Git and CMake to PATH
+RUN setx /M PATH "%PATH%;C:\Program Files\Git\cmd;C:\Program Files\CMake\bin"
+
+# Install Visual Studio Build Tools
+RUN curl -SL --output vs_buildtools.exe https://aka.ms/vs/17/release/vs_buildtools.exe && `
+    (start /w vs_buildtools.exe --quiet --wait --norestart --nocache `
+        --installPath "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools" `
+        --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended `
+        --add Microsoft.VisualStudio.Component.Windows10SDK.26100 `
+        --remove Microsoft.VisualStudio.Component.Windows10SDK.10240 `
+        --remove Microsoft.VisualStudio.Component.Windows10SDK.10586 `
+        --remove Microsoft.VisualStudio.Component.Windows10SDK.14393 `
+        --remove Microsoft.VisualStudio.Component.Windows81SDK `
+        || IF "%ERRORLEVEL%"=="3010" EXIT 0) && `
+    del /q vs_buildtools.exe
+
+# Install vcpkg
+RUN git clone https://github.com/microsoft/vcpkg.git C:\vcpkg && `
+    cd C:\vcpkg && `
+    git pull && `
+    bootstrap-vcpkg.bat -disableMetrics
+
+# Set VCPKG_ROOT environment variable
+ENV VCPKG_ROOT=C:\vcpkg
+
+# Add vcpkg to PATH
+RUN setx /M PATH "%PATH%;%VCPKG_ROOT%"
+
+# Clear vcpkg cache
+RUN vcpkg remove --outdated
+
+# -----------------------------------------------------------------
+# NEW SECTION: Pre-build your project's vcpkg dependencies
+# This moves the long build step from "docker run" to "docker build"
+# -----------------------------------------------------------------
+RUN "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\Tools\\VsDevCmd.bat" -arch=amd64 && `
+    echo "Installing vcpkg packages..." && `
+    vcpkg install glew:x64-windows glm:x64-windows opengl:x64-windows sdl2:x64-windows && `
+    echo "Cleaning up vcpkg..." && `
+    vcpkg remove --outdated --recurse
+
+# Define the entry point
+ENTRYPOINT ["C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\Tools\\VsDevCmd.bat", "-arch=amd64", "&&", "powershell.exe", "-NoLogo", "-ExecutionPolicy", "Bypass"]

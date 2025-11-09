@@ -18,8 +18,11 @@ find_package(SDL2 CONFIG REQUIRED)
 #    The Vcpkg targets (GLEW::GLEW, glm::glm, SDL2::SDL2, etc.) 
 #    automatically resolve to the correct library files on Windows, Linux, and macOS.
 set (OPENGL_COMMON_LIB GLEW::GLEW glm::glm SDL2::SDL2main SDL2::SDL2 )
+set (COMMON_SRC shared/winutil.h shared/winutil.cpp shared/shapes.h shared/shapes.cpp shared/fileutil.h shared/fileutil.cpp)
 
-add_executable(app1 app1-hello-triangles.cpp )
+add_executable(app001 app-001-hello-triangles.cpp ${COMMON_SRC})
+add_executable(app002 app-002-fps-camera.cpp ${COMMON_SRC} )
 
 # 3. LINK LIBRARIES: Link the modern, cross-platform targets.
-target_link_libraries(app1 PRIVATE ${OPENGL_COMMON_LIB} )
+target_link_libraries(app001 PRIVATE ${OPENGL_COMMON_LIB} )
+target_link_libraries(app002 PRIVATE ${OPENGL_COMMON_LIB} )
