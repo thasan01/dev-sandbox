@@ -2,7 +2,7 @@ name: GitHub Workflow Debug
 on: workflow_dispatch
 
 jobs:
-  info:
+  info-ubuntu:
     runs-on: ubuntu-latest
     steps:
       - name: Output GitHub context
@@ -10,5 +10,16 @@ jobs:
       
       - name: Output OS environment variables
         run: |
-          echo "OS environment variables:"
+          echo "OS environment variables on Ubuntu:"
           echo "$(env)" # Outputs all environment variables
+
+  info-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Output GitHub context
+        run: echo "${{ toJSON(github) }}"
+      
+      - name: Output OS environment variables
+        run: |
+          echo "OS environment variables on Windows:"
+          echo "$(Get-ChildItem Env: | Format-Table -AutoSize)"
