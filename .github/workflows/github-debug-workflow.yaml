@@ -17,9 +17,11 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Output GitHub context
-        run: echo "${{ toJSON(github) }}"
+        run: |
+          $githubContext = '${{ toJSON(github) }}'
+          Write-Host $githubContext
       
       - name: Output OS environment variables
         run: |
           echo "OS environment variables on Windows:"
-          echo "$(Get-ChildItem Env: | Format-Table -AutoSize)"
+          Get-ChildItem Env: | Format-Table -AutoSize
