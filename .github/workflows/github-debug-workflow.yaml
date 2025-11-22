@@ -1,8 +1,14 @@
 name: GitHub Workflow Debug
 on: workflow_dispatch
+
 jobs:
   info:
     runs-on: ubuntu-latest
     steps:
       - name: Output GitHub context
         run: echo "${{ toJSON(github) }}"
+      
+      - name: Output OS environment variables
+        run: |
+          echo "OS environment variables:"
+          echo "$(env)" # Outputs all environment variables
