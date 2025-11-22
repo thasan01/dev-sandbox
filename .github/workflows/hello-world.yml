@@ -2,12 +2,13 @@
 name: Hello World
 
 on:
+  workflow_dispatch: # Manual trigger of the workflow
   push:
     branches:
       - master-branch-that-doesnt-exists
 
 jobs:
-  say_hello:
+  main_task:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -15,3 +16,17 @@ jobs:
 
       - name: Say Hello
         run: echo "Hello, World!"
+
+  side_task:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Side Task
+        run: echo "This is a side task, it runs parallel to the main_task"
+    
+
+  post_task:
+    runs-on: ubuntu-latest
+    needs: main_task
+    steps:
+      - name: Post Task
+        run: echo "This task runs after main_task"
