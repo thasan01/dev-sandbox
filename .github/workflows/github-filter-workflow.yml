@@ -1,0 +1,26 @@
+# This is a example to show the different types of Filters and Activies on GitHub workflow
+name: GitHub Filter Workflows
+
+on:
+  workflow_dispatch: # Manual trigger of the workflow
+  pull_requests: #filters
+    types: [opened, closed] #activities
+    branches-ignore:
+      - master # triggers on all pull requests except master
+    paths-ignore:
+      - './ignore-file-path/*'
+  push:
+    branches: #filter: only start a WF if the push targets a specific branch
+      - master-branch-that-doesnt-exists
+      - dev-* # dev, dev-1, dev-new, etc
+      - feature/** # feature, feature/dev, feature/dev/1, etc
+
+jobs:
+  main_task:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Say Hello
+        run: echo "Hello, World!"
