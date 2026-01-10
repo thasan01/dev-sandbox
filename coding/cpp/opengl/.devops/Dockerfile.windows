@@ -47,15 +47,5 @@ RUN setx /M PATH "%PATH%;%VCPKG_ROOT%"
 # Clear vcpkg cache
 RUN vcpkg remove --outdated
 
-# -----------------------------------------------------------------
-# NEW SECTION: Pre-build your project's vcpkg dependencies
-# This moves the long build step from "docker run" to "docker build"
-# -----------------------------------------------------------------
-RUN "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\Tools\\VsDevCmd.bat" -arch=amd64 && `
-    echo "Installing vcpkg packages..." && `
-    vcpkg install glew:x64-windows glm:x64-windows opengl:x64-windows sdl2:x64-windows && `
-    echo "Cleaning up vcpkg..." && `
-    vcpkg remove --outdated --recurse
-
 # Define the entry point
 ENTRYPOINT ["C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\Tools\\VsDevCmd.bat", "-arch=amd64", "&&", "powershell.exe", "-NoLogo", "-ExecutionPolicy", "Bypass"]

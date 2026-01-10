@@ -3,7 +3,7 @@ name: C++ OpenGL Build
 on:
   push:
     paths:
-      - 'cpp/opengl/**'
+      - 'coding/cpp/opengl/**'
   workflow_dispatch: # Allows triggering from REST endpoint
 
 jobs:

@@ -21,7 +21,7 @@ jobs:
         run: |
           cd cpp/opengl
           docker build -t cpp-opengl -f .devops/Dockerfile.linux .
-          docker run --rm -v ${{ github.workspace }}/cpp/opengl/build:/build cpp-opengl cmake -S /src -B /build --preset debug
+          docker run --rm -v ${{ github.workspace }}/coding/cpp/opengl/build:/build cpp-opengl cmake -S /src -B /build --preset debug
           
       - name: Create Release
         id: create_release

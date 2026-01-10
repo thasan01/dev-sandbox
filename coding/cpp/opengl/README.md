@@ -19,3 +19,6 @@ In VSCode, install `Dev Containers` extension
 cmake -S src -B build --preset debug -DCMAKE_TOOLCHAIN_FILE=%VCPKG_ROOT%/scripts/buildsystems/vcpkg.cmake 
 cmake --build build --config {Debug|Release}
 ```
+
+
+cmake -S src -B build --preset debug -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
