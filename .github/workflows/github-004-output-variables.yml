@@ -1,7 +1,7 @@
 # This is a sample yaml to demonstrate one job setting an output varibale that is used by another job 
 # References:
 # - https://docs.github.com/en/actions/reference/workflows-and-actions/contexts
-name: GHW - Output Variables 
+name: GHW - Output Variables
 
 on:
   workflow_dispatch: # Manual trigger of the workflow
@@ -10,10 +10,10 @@ jobs:
   job1:
     runs-on: ubuntu-latest
     outputs:
-      outvar: ${{steps.publish.outputs.outvar}}
+      outvar: ${{ steps.publish.outputs.outvar }}
     steps:
       - name: Publish Variable
-      - id: publish # this is required for reference when publishing "outvar" 
+        id: publish # this id is required for reference when publishing "outvar"
         run: echo "outvar=Test123" >> $GITHUB_OUTPUT
 
   job2:
@@ -21,4 +21,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Print Variable
-        run: echo "The value of outvar is ${{needs.outputs.outvar}}"
+        run: echo "The value of outvar is ${{ needs.job1.outputs.outvar }}"
