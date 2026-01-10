@@ -12,7 +12,7 @@ on:
 jobs:
   job1:
     runs-on: ubuntu-latest
-    output:
+    outputs:
       outvar: ${{steps.publish.outputs.outvar}}
     steps:
       - name: Publish Variable
