@@ -14,7 +14,7 @@ jobs:
     steps:
       - name: Publish Variable
       - id: publish # this is required for reference when publishing "outvar" 
-        run: echo "outvar=Test123 >> $GITHUB_OUTPUT"
+        run: echo "outvar=Test123" >> $GITHUB_OUTPUT
 
   job2:
     needs: job1
