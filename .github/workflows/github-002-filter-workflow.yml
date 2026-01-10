@@ -3,7 +3,7 @@ name: GitHub Filter Workflows
 
 on:
   workflow_dispatch: # Manual trigger of the workflow
-  pull_requests: #filters
+  pull_request: #filters
     types: [opened, closed] #activities
     branches-ignore:
       - master # triggers on all pull requests except master
