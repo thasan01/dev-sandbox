@@ -5,9 +5,6 @@ name: GHW - Output Variables
 
 on:
   workflow_dispatch: # Manual trigger of the workflow
-  push:
-    branches:
-      - master-branch-that-doesnt-exists
 
 jobs:
   job1:
