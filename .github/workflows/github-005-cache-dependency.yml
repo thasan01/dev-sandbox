@@ -1,0 +1,33 @@
+# This is a sample yaml to demonstrate one job caching the NPM dependencies to be used by another job  
+# References:
+# - https://docs.github.com/en/actions/reference/workflows-and-actions/dependency-caching
+name: GHW - Dependencies Caching
+
+on:
+  workflow_dispatch: # Manual trigger of the workflow
+
+jobs:
+  job1:
+    runs-on: ubuntu-latest
+    outputs:
+      outvar: ${{ steps.publish.outputs.outvar }}
+    steps:
+      - name: Get Code
+        uses: actions/checkout@v3
+
+      - name: Cache Dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: npm-modules-${{hashFiles("./coding/javascript/webpack/package-lock.json")}}
+      
+      - name: Install Dependencies
+        working-directory: ./coding/javascript/webpack
+        run: npm install
+
+  job2:
+    needs: job1
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print Variable
+        run: echo "Hello world"
