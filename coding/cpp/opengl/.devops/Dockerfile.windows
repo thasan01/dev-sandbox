@@ -1,0 +1,51 @@
+# escape=`
+
+# Use the latest Windows Server Core 2022 image.
+#FROM mcr.microsoft.com/windows/servercore:ltsc2022
+FROM mcr.microsoft.com/dotnet/framework/sdk:4.8.1
+
+# Restore the default Windows shell for correct batch processing.
+SHELL ["cmd", "/S", "/C"]
+
+# Install Chocolatey
+RUN powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))"
+
+# Add Chocolatey to PATH
+RUN setx /M PATH "%PATH%;C:\ProgramData\chocolatey\bin"
+
+# Install Git and CMake
+RUN choco install -y git cmake --installargs 'ADD_CMAKE_TO_PATH=System'
+
+# Add Git and CMake to PATH
+RUN setx /M PATH "%PATH%;C:\Program Files\Git\cmd;C:\Program Files\CMake\bin"
+
+# Install Visual Studio Build Tools
+RUN curl -SL --output vs_buildtools.exe https://aka.ms/vs/17/release/vs_buildtools.exe && `
+    (start /w vs_buildtools.exe --quiet --wait --norestart --nocache `
+        --installPath "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools" `
+        --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended `
+        --add Microsoft.VisualStudio.Component.Windows10SDK.26100 `
+        --remove Microsoft.VisualStudio.Component.Windows10SDK.10240 `
+        --remove Microsoft.VisualStudio.Component.Windows10SDK.10586 `
+        --remove Microsoft.VisualStudio.Component.Windows10SDK.14393 `
+        --remove Microsoft.VisualStudio.Component.Windows81SDK `
+        || IF "%ERRORLEVEL%"=="3010" EXIT 0) && `
+    del /q vs_buildtools.exe
+
+# Install vcpkg
+RUN git clone https://github.com/microsoft/vcpkg.git C:\vcpkg && `
+    cd C:\vcpkg && `
+    git pull && `
+    bootstrap-vcpkg.bat -disableMetrics
+
+# Set VCPKG_ROOT environment variable
+ENV VCPKG_ROOT=C:\vcpkg
+
+# Add vcpkg to PATH
+RUN setx /M PATH "%PATH%;%VCPKG_ROOT%"
+
+# Clear vcpkg cache
+RUN vcpkg remove --outdated
+
+# Define the entry point
+ENTRYPOINT ["C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\Common7\\Tools\\VsDevCmd.bat", "-arch=amd64", "&&", "powershell.exe", "-NoLogo", "-ExecutionPolicy", "Bypass"]
