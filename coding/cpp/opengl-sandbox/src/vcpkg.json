@@ -1,0 +1,9 @@
+{
+  "name": "opengl-hello-world",
+  "version": "1.0.0",
+  "dependencies": [
+    "glfw3",
+    "glad",
+    "glm"
+  ]
+}
